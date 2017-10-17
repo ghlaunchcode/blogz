@@ -1,0 +1,4 @@
+#! /bin/sh
+
+echo "INIT python3 virtual environment 'mega' @ `pwd`"
+virtualenv --python=python3 mega

@@ -1,0 +1,115 @@
+{% extends "boilerplate.html" %}
+
+{% block content %}
+<section name="content">
+    <!-- style nearby as reminder -->
+    <style>
+        h2 {
+            margin: .1em;
+            padding: 0;
+        }
+
+        form {
+            background: #ccc;
+            border: 2pt ridge;
+            border-radius: 1em;
+            margin: .5em;
+            width: 80%;
+            padding: 1em;
+        }
+
+        .encapField {
+            width: 100%;
+        }
+
+        .inField {
+            width: 100%;
+            display:flex;
+            flex-direction: row;
+            align-items: center;
+            border-radius: .5em;
+        }
+
+        .status-condition_ERROR {
+
+            background-image: -webkit-linear-gradient(top, rgba(255,0,0,255), rgba(255,0,0,.2));
+            background-image: -moz-linear-gradient(top, rgba(255,0,0,255), rgba(255,0,0,.2));
+            background-image: linear-gradient(to bottom, rgba(255,0,0,255), rgba(255,0,0,.2));
+        }
+
+        label {
+            padding: .25em;
+            font-weight: bold;
+            text-align: right;
+            width: 16ch;
+        }
+
+        .msgError {
+            font-style: italic;
+            text-align: left;
+        }
+
+
+
+        .lineIcon {
+            font-weight: bold;
+            font-size: 200%;
+            color: #ff0;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .lineIcon {
+            visibility: hidden;
+        }
+        .status-condition_ERROR .lineIcon {
+            visibility: visible;
+        }
+
+        .rightField {
+            text-align: right;
+            width: 100%;
+        }
+    </style>
+
+    <form method="POST">
+        <h2>User Signup</h2>
+        <hr />
+        <div class="inField"> <!--{{statusUserName}}"> -->
+        <!--<div class="inField status-condition_ERROR"> -->
+            <span class="lineIcon">&rarr;</span>
+            <label for="textUserName">User Name:</label>
+            <input type="text" name="textUserName" value="{{strUserName}}" class="{{statusUserName}}"/>
+            <span class="msgError">{{strerrUserName}}</span>
+            <span class="lineIcon">&larr;</span>
+        </div>
+        <div class="inField"> <!-- {{statusPassword0}}">-->
+        <!--<div class="inField status-condition_ERROR">-->
+            <span class="lineIcon">&rarr;</span>            
+            <label for="textPassword0">Password:</label>
+            <input type="password" name="textPassword0" class="{{statusPassword0}}"/>
+            <span class="msgError">{{strerrPassword0}}</span>
+            <span class="lineIcon">&larr;</span>
+        </div>
+        <div class="inField"> <!-- {{statusPassword1}}">-->
+        <!--<div class="inField status-condition_ERROR">-->
+            <span class="lineIcon">&rarr;</span>            
+            <label for="textPassword1">Retype Password:</label>
+            <input type="password" name="textPassword1" class="{{statusPassword1}}" />
+            <span class="msgError">{{strerrPassword1}}</span>
+            <span class="lineIcon">&larr;</span>            
+        </div>
+        <div class="inField"> <!-- {{statusEmail}}">-->
+        <!--<div class="inField status-condition_ERROR">-->
+            <span class="lineIcon">&rarr;</span>            
+            <label for="textEmail">Email:</label>
+            <input type="text" name="textEmail" value="{{strEmail}}" class="{{statusEmail}}"/>
+            <span class="msgError">{{strerrEmail}}</span>
+            <span class="lineIcon">&larr;</span>            
+        </div>
+        <div class="rightField">
+            <input type="submit"/>
+        </div>
+    </form>
+</section>
+{% endblock %}

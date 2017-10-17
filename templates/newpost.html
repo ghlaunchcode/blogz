@@ -1,0 +1,32 @@
+{% extends 'boilerplate.html' %}
+{% block content %}
+<style>
+	form {
+		padding: .5em;
+	}
+	
+	input, textarea {
+		display: block;
+	}
+	.worry_user {
+		color: #f00;
+	}
+</style>
+<!-- NOTE: 
+	changed span to BLOCK element for newline 
+	added style to input / textarea
+	-->
+	<h3>Enter Post</h3>
+    <form method="POST" action="newpost">
+	
+        <p></p>
+        <label for="pt_in">Title</label>
+	
+        <div class="worry_user">{{pt_errmsg}}</div>
+        <input type="text" name="pt_in" value="{{post_title}}"></input>
+        <label for="pe_in">Entry</label>
+        <div class="worry_user">{{pe_errmsg}}</div>
+        <textarea name="pe_in">{{post_entry}}</textarea>
+        <input type="submit"></input>
+    </form>
+{% endblock %}

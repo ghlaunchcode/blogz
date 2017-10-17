@@ -1,0 +1,35 @@
+= BLOGz README
+
+
+== Initialize the Virtual Environment
+
+The initenv script located in the util folder should do the trick.
+
+$ util/initenv
+
+== Walkthru
+
+$ source mega/bin/activate
+
+[ $ util/getdep ]
+
+$ python app.py
+
+== Templates
+
+Located in the 'default' templates folder
+
+
+=== Variables
+
+ghSite_Name
+ghPage_Title
+
+
+== The database
+
+The database should be called blogz and accessible by user blogz.
+
+For simplicity, the password is 'blogz'.
+
+NOTE: only should be accessible by localhost.

@@ -1,0 +1,140 @@
+<!-- boilerplate.html ::
+    2017, Geoffrey Hadler
+-->
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="author" content="polarysekt" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <!-- TODO: the shortcut icon GET request returns a 404 -->
+        <!-- <link href="shortcut icon" href="{{url_for('static', filename='favicon.ico') }}" /> -->
+		<link href="https://fonts.googleapis.com/css?family=Libre+Barcode+128|Sedgwick+Ave|Open+Sans+Condensed|Nunito|Libre+Barcode+39+Text|Monoton|Oswald|Righteous|Source+Code+Pro" rel="stylesheet">
+
+        <!-- TODO: enable for production -->
+		<!-- <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}"\> -->
+		<title>{{ghSite_Name}}::{{ghPage_Title}}</title>
+		<style>
+			html {
+			    background-color: #333;
+				font-family: Oswald, sans-serif;
+				font-size: 12pt;
+			}
+			
+			body {
+                padding: .5em;
+                background-color: #fff;
+                border-radius: .25em;
+			}
+			
+			h1, h2, h3 {
+				margin: 0;
+				padding: 0;
+			}
+			
+			h2 {
+				font-family: Righteous;
+			}
+			
+			header, footer {
+				display: flex;
+				flex-direction: row;
+				align-items: left;
+				align-content: center;
+				justify-content: space-between;
+				width: 100%;
+			}
+			
+			header h1 {
+                font-family: "Sedgwick Ave";
+				text-shadow: 3px 3px #ccc;
+				color: #009;
+			}
+			
+			header p {
+                color: #555;
+                font-family: Nunito;
+				margin-left: 1em;
+				
+			}
+			header nav {
+				text-align: right;
+			}
+			
+			footer nav {
+			}
+			
+			footer p {
+                color: #999;
+				font-style: italic;
+				font-size: 75%;
+			
+				text-align: right;
+				
+			}
+			
+			h2 {
+
+				width: 100%;
+			}
+			
+			main {
+				padding: .5em;
+			}
+			
+			a {
+				text-decoration: none;
+			}
+			
+			a:hover {
+				text-decoration: underline;
+			}
+			
+			.cardRed {
+				color: #f00;
+			}
+
+			/* The following is only for poker			
+			.ghPokerTable {
+                padding: 2em;
+                background: #090;
+                border: 2pt ridge;
+                border-radius: 1em;
+			}
+			
+			.ghPokerCard {
+                background: #ccc;
+                border: 2pt outset;
+                border-radius: .5em;
+                width: 100px;
+*/
+        }
+
+		</style>
+    </head>
+    <body>
+    		<a name="top"></a>
+	<header>
+			<h1>{{ghSite_Name}}</h1>
+			<p>{{ghSlogan}}</p>
+			<nav>
+				<!-- TODO:: current page as selected 'tab' -->
+				[ <a href="blog">&uArr;home</a> | <a href="newpost">&#x270E;new</a> ] 
+			</nav>
+	</header>
+	<main>
+		<h2>{{ghPage_Title}}</h2>
+		<p>{{ghNav}}</p>
+		{% block content %}
+        {% endblock %}
+	</main>
+	<footer>
+			<nav>
+				[ <a href="#top">&uarr;top</a> <!--| <a href="flop">&weierp;poker</a> -->]
+			</nav>
+			<p>
+				Copyright &copy; 2017, Geoffrey Hadler
+			</p>
+	</footer>
+    </body>
+</html>
