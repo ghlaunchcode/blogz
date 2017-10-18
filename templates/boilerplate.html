@@ -9,7 +9,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <!-- TODO: the shortcut icon GET request returns a 404 -->
         <!-- <link href="shortcut icon" href="{{url_for('static', filename='favicon.ico') }}" /> -->
-		<link href="https://fonts.googleapis.com/css?family=Libre+Barcode+128|Sedgwick+Ave|Open+Sans+Condensed|Nunito|Libre+Barcode+39+Text|Monoton|Oswald|Righteous|Source+Code+Pro" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Sedgwick+Ave|Pacifico|Open+Sans+Condensed|Nunito|Libre+Barcode+39+Text|Monoton|Oswald|Righteous|Source+Code+Pro" rel="stylesheet">
 
         <!-- TODO: enable for production -->
 		<!-- <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}"\> -->
@@ -45,10 +45,38 @@
 				width: 100%;
 			}
 			
+			.flexLine {
+				display: flex;
+				flex-direction: row;
+				align-items: left;
+				align-content: center;
+				justify-content: space-between;
+				width: 100%;			
+			}
+			
 			header h1 {
                 font-family: "Sedgwick Ave";
 				text-shadow: 3px 3px #ccc;
 				color: #009;
+			}
+			
+			.navMain {
+                width: 100%;
+                font-size: 125%;
+                font-weight: bold;
+			}
+			
+			.navMain a {
+                border-radius: .25em;
+                padding: .25em;
+			
+			}
+			
+			.navMain a:hover {
+                background-color: #000;
+                color: #fff;
+                text-decoration: none;
+
 			}
 			
 			header p {
@@ -73,28 +101,31 @@
 				
 			}
 			
-			h2 {
-
-				width: 100%;
-			}
-			
-			main {
-				padding: .5em;
-			}
-			
 			a {
 				text-decoration: none;
+			}
+			
+			main, .pageContent {
+                padding: .5em;
+/*                margin-left: .5em;
+                margin-right: .5em;
+*/
 			}
 			
 			a:hover {
 				text-decoration: underline;
 			}
 			
+			.slogan {
+                font-family: Pacifico;
+			}
+
+            /* The following is only for poker			
 			.cardRed {
 				color: #f00;
 			}
 
-			/* The following is only for poker			
+
 			.ghPokerTable {
                 padding: 2em;
                 background: #090;
@@ -115,18 +146,32 @@
     <body>
     		<a name="top"></a>
 	<header>
-			<h1>{{ghSite_Name}}</h1>
-			<p>{{ghSlogan}}</p>
+<!--        <div class="flexLine"> -->
+			<div>
+                <h1>{{ghSite_Name}}</h1>
+                <nav class="navMain">
+                    <!-- TODO:: current page as selected 'tab' -->
+                    <a href="/">&uArr;home</a> . <a href="blog">posts</a>
+                </nav>                
+			</div>
+			<p class="slogan">{{ghSlogan}}</p>
 			<nav>
-				<!-- TODO:: current page as selected 'tab' -->
-				[ <a href="blog">&uArr;home</a> | <a href="newpost">&#x270E;new</a> ] 
+                <!-- TODO: customize based on user session -->
+				User: {{ghUser_Name}}<br/>
+				[ <a href="newpost">&#x270E;new post</a> | <a href="signup">signup</a> | <a href="login">login</a> | <a href="logout">logout</a> ] 
 			</nav>
+<!--        </div>
+        <div class="flexLine">
+
+        </div>-->
 	</header>
 	<main>
 		<h2>{{ghPage_Title}}</h2>
 		<p>{{ghNav}}</p>
-		{% block content %}
-        {% endblock %}
+		<div class="pageContent">
+            {% block content %}
+            {% endblock %}
+        </div>
 	</main>
 	<footer>
 			<nav>
