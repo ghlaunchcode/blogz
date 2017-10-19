@@ -142,8 +142,40 @@ def blog( ):
     #TODO get from session if possible
     strSiteUserName = request.remote_addr
     strErratae = gh_getFetchInfo()
+    #view_entries = []
+    #TODO determine if user view
+    strUserName = request.args.get('user')
+    strViewId = request.args.get('id')
+    if strViewId == None:
+        intViewId = 0
+    else:
+        try:
+            intViewId = int(strViewId)
+        except:
+            intViewId = 0
+        
+    #print( strUserName )
+    if strUserName == None:
+        if intViewId > 0:
+            strNav += ' :: <a href="?id=' + strViewId + '">id=' + strViewId + '</a>'
+            view_entries = BlogzEntry.query.filter_by(id=intViewId)
+        else:
+            strNav += ' :: <a href="blog">all</a>'
+            view_entries = BlogzEntry.query.all()
+    else:
+        strNav += ' :: <a href="?user=' + strUserName + '">' + strUserName + "</a>"
+        if intViewId > 0:
+            strNav += ' & <a href="?id=' + strViewId + '">id=' + strViewId + '</a>'
+            view_entries = BlogzEntry.query.filter_by( user=strUserName, id=intViewId )
+        else:
+            view_entries = BlogzEntry.query.filter_by( user=strUserName )
+        
  
-    view_entries = BlogzEntry.query.all()
+    #convert the dates to local server time
+    #TODO get users local time?
+    #if( len(view_entries) > 0 ):
+    for i in view_entries:
+        i.created = gh_getLocalTime(i.created)
  
     return render_template('blog.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_BLOG, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), ghErratae=Markup(strErratae), ghEntries = view_entries)
 
