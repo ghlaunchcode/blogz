@@ -40,7 +40,9 @@ ghDEBUG = True
 ghSITE_NAME = "BLOGz"
 ghPAGE_HOME = "home"
 ghPAGE_BLOG = "posts"
-
+ghPAGE_LOGIN = "login"
+ghPAGE_SIGNUP = "signup"
+ghPAGE_NEWPOST = "new post"
 
 #TODO
 @app.before_request
@@ -59,17 +61,23 @@ def verify_user():
 # ROUTE: '/' :: Main Site Index
 @app.route( "/" )
 def index( ):
-    return render_template('index.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_HOME, ghSlogan=getSlogan(), ghUser_Name=request.remote_addr)
+    strNav = '<a href="/">' + ghSITE_NAME + '</a>'
+    return render_template('index.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_HOME, ghSlogan=getSlogan(), ghUser_Name=request.remote_addr, ghNav=Markup(strNav))
 
 # ROUTE: '/blog' :: Blog View Page
 @app.route( "/blog" )
 def blog( ):
-    return render_template('blog.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_BLOG, ghSlogan=getSlogan() )
+    strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/blog">' + ghPAGE_BLOG + '</a>'
+    #TODO adjust nav string if different view (single, user)
+    return render_template('blog.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_BLOG, ghSlogan=getSlogan(), ghNav=Markup(strNav) )
 
-@app.route( "/login", methods=['POST'] )
+@app.route( "/login", methods=['POST', 'GET'] )
 def login( ):
     strErrMsg = ""
     strUserName = ""
+    
+    strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/login">' + ghPAGE_LOGIN + '</a>' 
+    
     if request.method == 'POST':
         
         strUserName = request.form['inUserName']
@@ -114,25 +122,27 @@ def login( ):
             #TODO invalid user message??
             strErrMsg = "Invalid User Specified"
         
-    return render_template('login.html', ghSite_Name=ghSITE_NAME, ghPage_Title="Login", ghSlogan=getSlogan(), vErrMsg=strErrMsg, vUserName=strUserName )
+    return render_template('login.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_LOGIN, ghSlogan=getSlogan(), ghNav=Markup(strNav), vErrMsg=strErrMsg, vUserName=strUserName )
 
 @app.route( "/logout" )
 def logout( ):
     #TODO
     return redirect( "/", 302 )
 
-@app.route( "/signup", methods=['POST'] )
+@app.route( "/signup", methods=['POST', 'GET'] )
 def signup( ):
+    strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/signup">' + ghPAGE_SIGNUP + '</a>'
     if request.method == 'POST':
         strUserName = request.form['inUserName']
         strUserPass0 = request.form['inUserPass0']
         strUserPass1 = request.form['inUserPass1']
         strUserEmail = request.form['inUserEmail']
-    return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title="User Signup", ghSlogan=getSlogan() )
+    return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghNav=Markup(strNav) )
 
-@app.route( "/newpost" )
+@app.route( "/newpost", methods=['POST', 'GET'] )
 def newpost( ):
-    return render_template('newpost.html', ghSite_Name=ghSITE_NAME, ghPage_Title="New Post", ghSlogan=getSlogan() )
+    strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/blog">' + ghPAGE_NEWPOST + '</a>'
+    return render_template('newpost.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_NEWPOST, ghSlogan=getSlogan(), ghNav=Markup(strNav) )
 
 def main():
     app.run()
