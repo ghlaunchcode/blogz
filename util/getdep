@@ -6,3 +6,5 @@ pip install flask
 pip install flask_sqlalchemy
 pip install flask-bcrypt
 pip install pymysql
+pip install pytz
+pip install tzlocal

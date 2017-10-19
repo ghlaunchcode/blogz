@@ -9,6 +9,14 @@ from flask import Flask, Markup, request, redirect, url_for, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 
+#TODO force utc and timezone offset awareness
+import time
+from datetime import datetime
+#TimeZone and DST
+import pytz
+from tzlocal import get_localzone
+
+
 from gh_slogan import getSlogan
 
 
@@ -34,6 +42,24 @@ class BlogzUser( db.Model ):
         self.email = email
         self.level = level
 
+class BlogzEntry( db.Model ):
+    id = db.Column( db.Integer, primary_key = True )
+    #TODO reference user by id
+    #user = db.Column( db.Integer )
+    user = db.Column( db.String(127) )
+    title = db.Column( db.String( 255 ) )
+    entry = db.Column( db.Text )
+    created = db.Column( db.DateTime )
+    modified = db.Column( db.DateTime )
+    edit_count = db.Column( db.Integer )
+    
+    def __init__( self, user, title, entry ):
+        self.user = user
+        self.title = title
+        self.entry = entry
+        #Stored as UTC, will render in SERVER local zone
+        self.created = self.modified = datetime.utcnow()
+        self.edit_count = 0
 
 ghDEBUG = True
 
@@ -44,10 +70,20 @@ ghPAGE_LOGIN = "login"
 ghPAGE_SIGNUP = "signup"
 ghPAGE_NEWPOST = "new post"
 
+# some utils
+def gh_getLocalTime( utc_dt ):
+    loc_z = get_localzone()
+    loc_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(loc_z)
+    return loc_z.normalize(loc_dt)
+
 #TODO
 @app.before_request
 def verify_user():
     ##TODO
+    #if ghDEBUG:
+        #req_utc = datetime.utcnow()
+        #req_loc = gh_getLocalTime( req_utc )
+        #print( "REQUEST @ ", req_utc, " => local:", req_loc, time.strftime("%Z") )
     #if ghDEBUG:
         #testHash = (bcrypt.generate_password_hash('test').decode('utf-8'))
         #print (testHash, len(testHash))
@@ -62,7 +98,22 @@ def verify_user():
 @app.route( "/" )
 def index( ):
     strNav = '<a href="/">' + ghSITE_NAME + '</a>'
-    return render_template('index.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_HOME, ghSlogan=getSlogan(), ghUser_Name=request.remote_addr, ghNav=Markup(strNav))
+    utcTime = datetime.utcnow()
+    strErratae = "Fetched @ " + str(utcTime) + " / " + str(gh_getLocalTime(utcTime))
+    
+    #get user list
+    users_data = BlogzUser.query.all()
+    #TODO return user name AND email
+    view_users = []
+    for i in users_data:
+        view_users.append( i.handle )
+        
+    if ghDEBUG:
+        print( view_users )
+    
+    return render_template('index.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_HOME, ghSlogan=getSlogan(), ghUser_Name=request.remote_addr, ghNav=Markup(strNav), ghErratae=strErratae, ghUsers=view_users)
+
+# ROUTE: '/features' :: Feature List Page
 
 # ROUTE: '/blog' :: Blog View Page
 @app.route( "/blog" )
