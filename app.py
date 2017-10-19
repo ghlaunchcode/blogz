@@ -6,7 +6,10 @@
 
 # imports
 from flask import Flask, Markup, request, redirect, url_for, render_template
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import load_only
 from flask_bcrypt import Bcrypt
+
 
 #TODO force utc and timezone offset awareness
 import time
@@ -15,7 +18,7 @@ from datetime import datetime
 import pytz
 from tzlocal import get_localzone
 
-from models import db, BlogzUser, BlogzEntry
+#from models import db, BlogzUser, BlogzEntry
 from gh_slogan import getSlogan
 
 ## ENABLE/DISABLE Debugging ###
@@ -29,9 +32,45 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 #g_app.config['SQLALCHEMY_ECHO' ] = True
 
 #for late-loading (comes from models.py)
-db.init_app(app)
-#db = SQLAlchemy( app )
+#db.init_app(app)
+db = SQLAlchemy( app )
 bcrypt = Bcrypt( app )
+
+# BLOGz User Model
+class BlogzUser( db.Model ):
+    id = db.Column( db.Integer, primary_key = True )
+    handle = db.Column( db.String( 127 ) )
+    pass_hash = db.Column( db.String( 60 ) )
+    email = db.Column( db.String( 255 ) )
+    level = db.Column( db.Integer )
+    count = db.Column( db.Integer )
+    
+    def __init__( self, handle, password, email, level ):
+        self.handle = handle
+        self.pass_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+        self.email = email
+        self.level = level
+        self.count = 0
+
+# BLOGz Entry Model
+class BlogzEntry( db.Model ):
+    id = db.Column( db.Integer, primary_key = True )
+    #TODO reference user by id
+    #user = db.Column( db.Integer )
+    user = db.Column( db.String(127) )
+    title = db.Column( db.String( 255 ) )
+    entry = db.Column( db.Text )
+    created = db.Column( db.DateTime )
+    modified = db.Column( db.DateTime )
+    edit_count = db.Column( db.Integer )
+    
+    def __init__( self, user, title, entry ):
+        self.user = user
+        self.title = title
+        self.entry = entry
+        #Stored as UTC, will render in SERVER local zone
+        self.created = self.modified = datetime.utcnow()
+        self.edit_count = 0
 
 
 ghSITE_NAME = "BLOGz"
@@ -79,17 +118,8 @@ def index( ):
     #TODO get from session if possible
     strSiteUserName = request.remote_addr
     
-    #get user list
-    view_users = BlogzUser.query.all()
-    #TODO return user name AND email
-    #view_users = []
-    #for i in users_data:
-        #view_users.append( i.handle )
-
-    # simple implementation (remove pass_hash)
-    for i in view_users:
-        i.pass_hash = ""
-
+    #get user list without pass_hash
+    view_users = BlogzUser.query.options(load_only("handle","email", "level", "count"))
         
     if ghDEBUG:
         print( view_users )
@@ -230,6 +260,8 @@ def signup( ):
         ERRSTR_SPACES_FIELD = " Field must not contain spaces!"
         ERRSTR_MATCH_FIELD = " Fields must match!"
         ERRSTR_INVALID_EMAIL = " Field must contain valid email!"
+        ERRSTR_LENGTH_EMAIL = " Field must be 3 to 127 characters!"
+        ERRSTR_USER_EXIST = " User already exists!"
 
         # DECLARE / INIT form VARs
         strUserName = ""
@@ -273,9 +305,78 @@ def signup( ):
             strerrUserPass1 += ERRSTR_EMPTY_FIELD
             
         #NOTE: email is not required
+        
+        
+        if len(strUserName) < 3 or len(strUserName) > 20:
+            isSuccess = False
+            statusUserName = ERRSTR_STATUS_ERROR
+            strerrUserName += ERRSTR_LENGTH_FIELD
+
+        # CHECK for SPACES
+        # returns -1 if not found, else index
+        if strUserName.find(" ") > -1:
+            isSuccess = False
+            statusUserName = ERRSTR_STATUS_ERROR
+            strerrUserName += ERRSTR_SPACES_FIELD
+            
+        if len(strUserPass0) < 3 or len(strUserPass0) > 20:
+            isSuccess = False
+            statusUserPass0 = ERRSTR_STATUS_ERROR
+            strerrUserPass0 += ERRSTR_LENGTH_FIELD
     
-    
-        return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), strUserName=strUserName, strUserEmail=strUserEmail, statusUserName=statusUserName, statusUserPass0=statusUserPass0, statusUserPass1=statusUserPass1, statusUserEmail=statusUserEmail, strerrUserName=strerrUserName, strerrUserPass0=strerrUserPass0, strerrUserPass1=strerrUserPass1, strerrUserEmail=strerrUserEmail, ghErratae=Markup(strErratae) )
+        if len(strUserPass1) < 3 or len(strUserPass1) > 20:
+            isSuccess = False
+            statusUserPass1 = ERRSTR_STATUS_ERROR
+            strerrUserPass1 += ERRSTR_LENGTH_FIELD
+
+        if strUserPass0 != strUserPass1:
+            isSuccess = False
+            statusUserPass0 = ERRSTR_STATUS_ERROR
+            statusUserPass1 = ERRSTR_STATUS_ERROR
+            strerrUserPass0 += ERRSTR_LENGTH_FIELD
+            strerrUserPass1 += ERRSTR_LENGTH_FIELD
+
+        # Only parse if email provided
+        if strUserEmail != None:
+            # CHECK for SPACES
+            # returns -1 if not found, else index
+            if strUserEmail.find(" ") > -1:
+                isSuccess = False
+                statusUserEmail = ERRSTR_STATUS_ERROR
+                strerrUserEmail += ERRSTR_SPACES_FIELD
+            # Look for @ (ignore period)
+            if strUserEmail.find("@") == -1:
+                isSuccess = False
+                statusUserEmail = ERRSTR_STATUS_ERROR
+                strerrUserEmail += ERRSTR_INVALID_EMAIL
+            # Check length (higher bound for email)
+            if len(strUserEmail) < 3 or len(strUserEmail) > 127:
+                isSuccess = False
+                statusUserEmail = ERRSTR_STATUS_ERROR
+                strerrUserEmail += ERRSTR_LENGTH_EMAIL
+        
+        # only call db req if all else is good
+        if isSuccess:
+            user_hand = BlogzUser.query.filter_by( handle = strUserName ).options( load_only("handle") ).first()
+            #if ghDEBUG:
+                #print( user_hand )
+                #print( user_hand.handle )
+                #print( user_hand.id )
+            if user_hand != None:
+                isSuccess = False
+                statusUserName = ERRSTR_STATUS_ERROR
+                strerrUserName += ERRSTR_USER_EXIST
+        
+        if not isSuccess:
+            return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), strUserName=strUserName, strUserEmail=strUserEmail, statusUserName=statusUserName, statusUserPass0=statusUserPass0, statusUserPass1=statusUserPass1, statusUserEmail=statusUserEmail, strerrUserName=strerrUserName, strerrUserPass0=strerrUserPass0, strerrUserPass1=strerrUserPass1, strerrUserEmail=strerrUserEmail, ghErratae=Markup(strErratae) )
+        
+        # fallthrough to commit new entry
+        # default level is 1 / count is 0 behind scenes
+        new_user = BlogzUser( strUserName, strUserPass0, strUserEmail, 1 )
+        db.session.add(new_user)
+        db.session.commit()
+        # TODO redirect to an interrim info page?
+        return redirect('login', 302)
     
     return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), ghErratae=Markup(strErratae) )
 
