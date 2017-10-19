@@ -1,15 +1,13 @@
 {% extends "boilerplate.html" %}
 {% block content %}
     <h3>User List</h3>
-
     <ul>
 	{% if not ghUsers %} 
-		<p>No data to show.</p>
+		<p colspan="3">No data to show.</p>
 	{% else %}
 		{% for user in ghUsers %}
-			<div class="ghUserListing">
-                <li><a href="blog?user={{user}}">{{user}}</a></li>
-			</div>
+                <li><h4><a href="blog?user={{user.handle}}">{{user.handle}}</a></h4>
+                ({{user.email}}) :: ? posts</li>
 		{% endfor %}
 	{% endif %}
     </ul>

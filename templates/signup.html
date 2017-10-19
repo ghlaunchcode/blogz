@@ -10,11 +10,11 @@
         }
 
         form {
-            background: #ccc;
-            border: 2pt ridge;
+/*             background: #ccc; */
+/*             border: 2pt ridge; */ 
             border-radius: 1em;
             margin: .5em;
-            width: 80%;
+            /*width: 80%;*/
             padding: 1em;
         }
 
@@ -30,7 +30,7 @@
             border-radius: .5em;
         }
 
-        .status-condition_ERROR {
+        .status-condition_ERROR input {
 
             background-image: -webkit-linear-gradient(top, rgba(255,0,0,255), rgba(255,0,0,.2));
             background-image: -moz-linear-gradient(top, rgba(255,0,0,255), rgba(255,0,0,.2));
@@ -50,11 +50,10 @@
         }
 
 
-
         .lineIcon {
             font-weight: bold;
             font-size: 200%;
-            color: #ff0;
+            color: #f00;
             text-align: center;
             vertical-align: middle;
         }
@@ -66,46 +65,42 @@
             visibility: visible;
         }
 
-        .rightField {
-            text-align: right;
-            width: 100%;
-        }
+/*         .rightField { */
+/*             text-align: right; */
+/*             width: 100%; */
+/*         } */
     </style>
 
-    <form method="POST">
+    <form action="signup" method="POST">
         <h2>User Signup</h2>
         <hr />
-        <div class="inField"> <!--{{statusUserName}}"> -->
-        <!--<div class="inField status-condition_ERROR"> -->
-            <span class="lineIcon">&rarr;</span>
-            <label for="textUserName">User Name:</label>
-            <input type="text" name="textUserName" value="{{strUserName}}" class="{{statusUserName}}"/>
+        <div class="inField {{statusUserName}}">
+            <span class="lineIcon">&#x2613;</span>
+            <label for="inUserName">User Name:</label>
+            <input type="text" name="inUserName" value="{{strUserName}}"/>
+            <span class="lineIcon">&larr;</span>
             <span class="msgError">{{strerrUserName}}</span>
+        </div>
+        <div class="inField {{statusUserPass0}}">
+            <span class="lineIcon">&#x2613;</span>
+            <label for="inUserPass0">Password:</label>
+            <input type="password" name="inUserPass0" />
             <span class="lineIcon">&larr;</span>
+            <span class="msgError">{{strerrUserPass0}}</span>
         </div>
-        <div class="inField"> <!-- {{statusPassword0}}">-->
-        <!--<div class="inField status-condition_ERROR">-->
-            <span class="lineIcon">&rarr;</span>            
-            <label for="textPassword0">Password:</label>
-            <input type="password" name="textPassword0" class="{{statusPassword0}}"/>
-            <span class="msgError">{{strerrPassword0}}</span>
+        <div class="inField {{statusUserPass1}}">
+            <span class="lineIcon">&#x2613;</span>          
+            <label for="inUserPass1">Retype Password:</label>
+            <input type="password" name="inUserPass1" />
             <span class="lineIcon">&larr;</span>
+            <span class="msgError">{{strerrUserPass1}}</span>
         </div>
-        <div class="inField"> <!-- {{statusPassword1}}">-->
-        <!--<div class="inField status-condition_ERROR">-->
-            <span class="lineIcon">&rarr;</span>            
-            <label for="textPassword1">Retype Password:</label>
-            <input type="password" name="textPassword1" class="{{statusPassword1}}" />
-            <span class="msgError">{{strerrPassword1}}</span>
-            <span class="lineIcon">&larr;</span>            
-        </div>
-        <div class="inField"> <!-- {{statusEmail}}">-->
-        <!--<div class="inField status-condition_ERROR">-->
-            <span class="lineIcon">&rarr;</span>            
-            <label for="textEmail">Email:</label>
-            <input type="text" name="textEmail" value="{{strEmail}}" class="{{statusEmail}}"/>
-            <span class="msgError">{{strerrEmail}}</span>
-            <span class="lineIcon">&larr;</span>            
+        <div class="inField {{statusUserEmail}}">
+            <span class="lineIcon">&#x2613;</span>          
+            <label for="inUserEmail">Email:</label>
+            <input type="text" name="inUserEmail" value="{{strUserEmail}}" />
+            <span class="lineIcon">&larr;</span>
+            <span class="msgError">{{strerrUserEmail}}</span>
         </div>
         <div class="rightField">
             <input type="submit"/>

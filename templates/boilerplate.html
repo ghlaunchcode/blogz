@@ -27,16 +27,19 @@
                 border-radius: .25em;
 			}
 			
-			h1, h2, h3 {
+			h1, h3, h4 {
 				margin: 0;
 				padding: 0;
+				display: inline;
 			}
 			
 			h2 {
+                margin: 0;
+                padding: 0;
 				font-family: Righteous;
 			}
 			
-			header, footer {
+			footer {
 				display: flex;
 				flex-direction: row;
 				align-items: left;
@@ -139,35 +142,40 @@
                 border-radius: .5em;
                 width: 100px;
 */
-        }
+
+            .titleArea nav {
+                display: inline;
+            }
+    }
 
 		</style>
     </head>
     <body>
     		<a name="top"></a>
 	<header>
-<!--        <div class="flexLine"> -->
-			<div>
+        <div class="flexLine">
+            <div class="titleArea">
                 <h1>{{ghSite_Name}}</h1>
                 <nav class="navMain">
-                    <!-- TODO:: current page as selected 'tab' -->
-                    <a href="/">&uArr;home</a> . <a href="blog">posts</a>
-                </nav>                
-			</div>
-			<p class="slogan">{{ghSlogan}}</p>
+                <!-- TODO:: current page as selected 'tab' -->
+                <a href="/">&#x21E7;home</a> . <a href="blog">&#x269E;posts</a>
+                </nav>
+                <div>
+                    <h2>{{ghPage_Title}}</h2>
+                    <nav>
+                        &#x21B3;&nbsp;{{ghNav}}
+                    </nav>
+                </div>
+            </div>
+			<div class="slogan">{{ghSlogan}}</div>
 			<nav>
                 <!-- TODO: customize based on user session -->
 				User: {{ghUser_Name}}<br/>
 				[ <a href="newpost">&#x270E;new post</a> | <a href="signup">signup</a> | <a href="login">login</a> | <a href="logout">logout</a> ] 
 			</nav>
-<!--        </div>
-        <div class="flexLine">
-
-        </div>-->
+        </div>
 	</header>
 	<main>
-		<h2>{{ghPage_Title}}</h2>
-		<p>{{ghNav}}</p>
 		<div class="pageContent">
             {% block content %}
             {% endblock %}

@@ -102,11 +102,16 @@ def index( ):
     strErratae = "Fetched @ " + str(utcTime) + " / " + str(gh_getLocalTime(utcTime))
     
     #get user list
-    users_data = BlogzUser.query.all()
+    view_users = BlogzUser.query.all()
     #TODO return user name AND email
-    view_users = []
-    for i in users_data:
-        view_users.append( i.handle )
+    #view_users = []
+    #for i in users_data:
+        #view_users.append( i.handle )
+
+    # simple implementation (remove pass_hash)
+    for i in view_users:
+        i.pass_hash = ""
+
         
     if ghDEBUG:
         print( view_users )
@@ -180,14 +185,76 @@ def logout( ):
     #TODO
     return redirect( "/", 302 )
 
-@app.route( "/signup", methods=['POST', 'GET'] )
-def signup( ):
+def validate_signup( strUserName, strUserPass0, strUserPass1, strUserEmail):
+    return True
+
+# ROUTE 'signup' :: User Signup
+# Now separates POST logic and variables
+@app.route( "/signup", methods=['POST','GET'] )
+def signup( ):   
+    # BUILD nav string
     strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/signup">' + ghPAGE_SIGNUP + '</a>'
+    
+    # POST condition
     if request.method == 'POST':
+        #NOTE: error checking aggregates and falls through
+        
+        # Error Styling #TODO
+        ERRSTR_STATUS_ERROR = "status-condition_ERROR"
+        
+        # Various ERROR messages
+        ERRSTR_EMPTY_FIELD = " Field is required!"
+        ERRSTR_LENGTH_FIELD = " Field must be 3 to 20 characters!"
+        ERRSTR_SPACES_FIELD = " Field must not contain spaces!"
+        ERRSTR_MATCH_FIELD = " Fields must match!"
+        ERRSTR_INVALID_EMAIL = " Field must contain valid email!"
+
+        # DECLARE / INIT form VARs
+        strUserName = ""
+        strUserPass0 = ""
+        strUserPass1 = ""
+        strUserEmail =""
+        strerrUserName = ""
+        strerrUserPass0 = ""
+        strerrUserPass1 = ""
+        strerrUserEmail = ""
+        statusUserName = ""
+        statusUserPass0 = ""
+        statusUserPass1 = ""
+        statusUserEmail = ""        
+        
+        # Obtain POSTed values
         strUserName = request.form['inUserName']
         strUserPass0 = request.form['inUserPass0']
         strUserPass1 = request.form['inUserPass1']
         strUserEmail = request.form['inUserEmail']
+        
+        # Set a success variable (optimistic)
+        isSuccess = True
+        
+        
+        # Begin VALIDATION
+        # CHECK for EMPTY
+        if strUserName == "":
+            isSuccess = False
+            statusUserName = ERRSTR_STATUS_ERROR
+            strerrUserName += ERRSTR_EMPTY_FIELD
+    
+        if strUserPass0 == "":
+            isSuccess = False
+            statusUserPass0 = ERRSTR_STATUS_ERROR
+            strerrUserPass0 += ERRSTR_EMPTY_FIELD
+            
+        if strUserPass1 == "":
+            isSuccess = False
+            statusUserPass1 = ERRSTR_STATUS_ERROR
+            strerrUserPass1 += ERRSTR_EMPTY_FIELD
+            
+        #NOTE: email is not required
+    
+    
+        return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghNav=Markup(strNav), strUserName=strUserName, strUserEmail=strUserEmail, statusUserName=statusUserName, statusUserPass0=statusUserPass0, statusUserPass1=statusUserPass1, statusUserEmail=statusUserEmail, strerrUserName=strerrUserName, strerrUserPass0=strerrUserPass0, strerrUserPass1=strerrUserPass1, strerrUserEmail=strerrUserEmail )
+    
     return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghNav=Markup(strNav) )
 
 @app.route( "/newpost", methods=['POST', 'GET'] )
