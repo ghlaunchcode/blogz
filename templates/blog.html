@@ -10,19 +10,24 @@
 /* 			border-radius: .25em; */
 		}
 		.ghBlogEntry {
-            background: #fff;
-            border: 2pt outset;
+/*             background: #fff; */
+/*             border: 2pt outset; */
 			padding: .5em;
 			
 		}
-		h3 {
-            display: inline;
+		.ghBlogEntry p {
+            font-family: "Century Schoolbook", "Century", "Times New Roman", Times, serif;
 		}
+		
 		h6 {
             margin: 0;
             padding: 0;
             display: inline;
             font-size: 75%;
+		}
+		.createdDateTime{
+            font-size: 75%;
+            color: #777;
 		}
 	</style>
 	
@@ -64,8 +69,12 @@
 	{% else %}
 		{% for entry in ghEntries %}
 			<div class="ghBlogEntry">
-			<h3><a href="?id={{entry.id}}">{{entry.title}}</a></h3><h6>[ &#x2710;edit | &#x2718;remove ]</h6>
-			<p>{{entry.content}}</p>
+			<h3><a href="?id={{entry.id}}">{{entry.title}}</a></h3>
+			<div><a href="blog?user={{entry.user}}">{{entry.user}}</a>
+			{{entry.email}}<span class="createdDateTime">{{entry.created}}</span></div>
+			<!-- TODO; for users' own posts <h6>[ &#x2710;edit | &#x2718;remove ]</h6> -->
+			<p>{{entry.entry}}</p>
+
 			</div>
 		{% endfor %}
 	{% endif %}

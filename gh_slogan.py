@@ -6,7 +6,8 @@ from random import randint
 
 #g_ghSloganList = [ "DEFAULT SLOGAN", "It's a secret to everyone.", "CTOR BLOGGEN", "Welcome Back" ]
 
-g_ghSloganList = [ """ “Live as if you were to die tomorrow. Learn as if you were to live forever” ― Mahatma Gandhi """,
+
+g_ghSloganList = [ """ "Live as if you were to die tomorrow. Learn as if you were to live forever" ― Mahatma Gandhi """,
 """ “Without music, life would be a mistake” ― Friedrich Nietzsche """,
 """ “Insanity is doing the same thing, over and over again, but expecting different results” ― Narcotics Anonymous """,
 """ “All that we see or seem is but a dream within a dream” ― Edgar Allan Poe """,
@@ -18,8 +19,7 @@ g_ghSloganList = [ """ “Live as if you were to die tomorrow. Learn as if you w
 """ “The secret of getting ahead is getting started” ― Mark Twain """,
 """ “The only true wisdom is in knowing you know nothing” ― Socrates """,
 """ “Everything has beauty, but not everyone sees it” ― Confucious """,
-""" “It is during our darkest moments we must focus to see the light” ― Aristotle """
-]
+""" “It is during our darkest moments we must focus to see the light” ― Aristotle """]
 
 def getSlogan():
     return g_ghSloganList[randint(0,len(g_ghSloganList)-1)]

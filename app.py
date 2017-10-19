@@ -16,19 +16,26 @@ from datetime import datetime
 import pytz
 from tzlocal import get_localzone
 
+#from models import db, BlogzUser, BlogzEntry
 
 from gh_slogan import getSlogan
 
+## ENABLE/DISABLE Debugging ###
+ghDEBUG = True
+###############################
 
 app = Flask( __name__ )
-app.config['DEBUG'] = True
+app.config['DEBUG'] = ghDEBUG
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:3306/blogz'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 #g_app.config['SQLALCHEMY_ECHO' ] = True
 
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
+#for late-loading (comes from models.py)
+#db.init_app(app)
+db = SQLAlchemy( app )
+bcrypt = Bcrypt( app )
 
+# BLOGz User Model
 class BlogzUser( db.Model ):
     id = db.Column( db.Integer, primary_key = True )
     handle = db.Column( db.String( 127 ) )
@@ -38,10 +45,11 @@ class BlogzUser( db.Model ):
     
     def __init__( self, handle, password, email, level ):
         self.handle = handle
-        self.pass_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+        self.pass_hash = generate_password_hash(password).decode('utf-8')
         self.email = email
         self.level = level
 
+# BLOGz Entry Model
 class BlogzEntry( db.Model ):
     id = db.Column( db.Integer, primary_key = True )
     #TODO reference user by id
@@ -61,7 +69,6 @@ class BlogzEntry( db.Model ):
         self.created = self.modified = datetime.utcnow()
         self.edit_count = 0
 
-ghDEBUG = True
 
 ghSITE_NAME = "BLOGz"
 ghPAGE_HOME = "home"
@@ -135,8 +142,10 @@ def blog( ):
     #TODO get from session if possible
     strSiteUserName = request.remote_addr
     strErratae = gh_getFetchInfo()
-    
-    return render_template('blog.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_BLOG, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), ghErratae=Markup(strErratae) )
+ 
+    view_entries = BlogzEntry.query.all()
+ 
+    return render_template('blog.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_BLOG, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), ghErratae=Markup(strErratae), ghEntries = view_entries)
 
 @app.route( "/login", methods=['POST', 'GET'] )
 def login( ):
