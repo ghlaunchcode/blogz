@@ -2,9 +2,11 @@
 
 echo "INSTALL dependencies for BLOGz"
 
-pip install flask
-pip install flask_sqlalchemy
-pip install flask-bcrypt
-pip install pymysql
-pip install pytz
-pip install tzlocal
+pip install -U tzlocal
+pip install -U pytz
+pip install -U flask
+pip install -U flask_sqlalchemy
+pip install -U flask-bcrypt
+pip install -U pymysql
+
+
