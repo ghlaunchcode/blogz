@@ -1,7 +1,8 @@
 #! /bin/sh
 
-echo "INSTALL dependencies for Build-A-Blog"
+echo "INSTALL dependencies for BLOGz"
 
 pip install flask
 pip install flask_sqlalchemy
+pip install flask-bcrypt
 pip install pymysql

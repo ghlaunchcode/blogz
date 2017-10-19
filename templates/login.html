@@ -1,6 +1,12 @@
 {% extends "boilerplate.html" %}
 {% block content %}
 <h3>Login</h3>
-
-
+<p>{{vErrMsg}}</p>
+<form action="login" method="POST">
+    <label for="inUserName">User Name</label>
+    <input type="text" name="inUserName" value="{{vUserName}}" />
+    <label for="inUserPass">Password</label>
+    <input type="password" name="inUserPass"/>
+    <input type="submit"/>
+</form>
 {% endblock %}

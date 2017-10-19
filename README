@@ -7,6 +7,49 @@ The initenv script located in the util folder should do the trick.
 
 $ util/initenv
 
+== Create DATABASE
+
+=== Using mysql-workbench
+
+* Login to MySQL server "MySQL@localhost:3306" using user "root" and the correct authentication
+* * Password may be a string or stored already in keychain
+
+* Create a new schema in the connected server
+* * Set the name to blogz
+* * Set default collation to utf8-default
+
+`CREATE SCHEMA `blogz` DEFAULT CHARACTER SET utf8 ;`
+
+* Create a new user
+* * Set the name to "blogz"
+* * Set the Limit to Hosts matching "localhost" or "127.0.0.1"
+* * Set the password to "blogz"
+* * Create a new schema privilege definition for "blogz"
+* * * Set ALL (for now)
+
+=== Create initial TABLES
+
+If the dependencies are only available to the virtual environment, fire that up
+
+==== Using models.py
+
+`$ python models.py`
+
+==== Using CLI
+
+Open python CLI:
+`$ python`
+
+`>>> from app import db`
+CREATE the TABLES
+`>>> from models import BlogzUser, BlogzEntry`
+`>>> db.create_all()`
+
+CREATE a root user with a high loglevel (and simple password):
+`>>> new_user = BlogzUser( "root", "root" "root@localhost", 7 )`
+`>>> db.session.add( new_user )`
+`>>> db.session.commit()`
+
 == Walkthru
 
 $ source mega/bin/activate
