@@ -5,7 +5,7 @@
 # 2017, polarysekt
 
 # imports
-from flask import Flask, Markup, request, redirect, url_for, render_template
+from flask import Flask, Markup, request, redirect, url_for, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import load_only
 from flask_bcrypt import Bcrypt
@@ -35,6 +35,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 #db.init_app(app)
 db = SQLAlchemy( app )
 bcrypt = Bcrypt( app )
+
+app.secret_key = bcrypt.generate_password_hash( 'BLOGz unique' )
 
 # BLOGz User Model
 class BlogzUser( db.Model ):
@@ -93,20 +95,20 @@ def gh_getFetchInfo():
 #TODO
 @app.before_request
 def verify_user():
-    ##TODO
-    #if ghDEBUG:
-        #req_utc = datetime.utcnow()
-        #req_loc = gh_getLocalTime( req_utc )
-        #print( "REQUEST @ ", req_utc, " => local:", req_loc, time.strftime("%Z") )
-    #if ghDEBUG:
-        #testHash = (bcrypt.generate_password_hash('test').decode('utf-8'))
-        #print (testHash, len(testHash))
-    #if session['logLevel'] > 0:
-        #Allow User
-    #else:
-        #Redirect User
-    #return redirect( "/", 302 )
-    placeholder = 0
+    #TODO allow users to have privilege level
+    allowed_routes = ['index', 'login', 'signup' ]
+    isAuthentic = False
+    
+    if request.endpoint not in allowed_routes:
+        if ghDEBUG:
+            print( "Attempt to access restricted :: CHECK user auth" )
+        if 'loglevel' in session:
+            if session['loglevel'] > 0:
+                if ghDEBUG:
+                    print( "Found Authenticity" )
+                isAuthentic = True
+        if not isAuthentic:
+            return redirect( "login", 302 )
 
 # ROUTE: '/' :: Main Site Index
 @app.route( "/" )
