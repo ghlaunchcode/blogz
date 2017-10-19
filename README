@@ -1,6 +1,20 @@
 = BLOGz README
 
 
+== Quick Start
+
+Will require password for MySQL 'root'
+
+$ util/init_all && util/startserver_init
+
+Initializes:
+* schema
+* user / roles
+* virtual environment 'mega'
+* BlogzEntry
+* BlogzUser
+* Creates a 'root' user for BlogzUser
+
 == Initialize the Virtual Environment
 
 The initenv script located in the util folder should do the trick.
@@ -8,6 +22,8 @@ The initenv script located in the util folder should do the trick.
 $ util/initenv
 
 == Create DATABASE
+
+=== Using 
 
 === Using mysql-workbench
 
@@ -27,15 +43,15 @@ $ util/initenv
 * * Create a new schema privilege definition for "blogz"
 * * * Set ALL (for now)
 
-=== Create initial TABLES
+== Create initial TABLES
 
 If the dependencies are only available to the virtual environment, fire that up
 
-==== Using models.py
+=== Using models.py
 
 `$ python models.py`
 
-==== Using CLI
+=== Using CLI
 
 Open python CLI:
 `$ python`
@@ -50,7 +66,11 @@ CREATE a root user with a high loglevel (and simple password):
 `>>> db.session.add( new_user )`
 `>>> db.session.commit()`
 
-== Walkthru
+== New Walkthru
+
+$ util/startserver
+
+== Old Walkthru
 
 $ source mega/bin/activate
 
@@ -58,10 +78,12 @@ $ source mega/bin/activate
 
 $ python app.py
 
-== Templates
+
+== Dev-Related
+
+=== Templates
 
 Located in the 'default' templates folder
-
 
 === Variables
 
@@ -69,7 +91,7 @@ ghSite_Name
 ghPage_Title
 
 
-== The database
+=== The database
 
 The database should be called blogz and accessible by user blogz.
 

@@ -1,0 +1,8 @@
+#! /bin/sh
+
+echo -n "MySQL as 'root' => "
+cat util/createdb.sql | mysql -u root -p -v -v -v
+util/initenv
+mega/bin/python models.py
+
+echo "Now run util/startserver_init"
