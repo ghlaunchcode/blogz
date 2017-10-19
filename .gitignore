@@ -1,3 +1,9 @@
 # virtualenv
 mega/
+
+# python caches
 __pycache__/
+*.pyc
+
+# editor tempfiles
+*.kate-swp

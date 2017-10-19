@@ -76,6 +76,10 @@ def gh_getLocalTime( utc_dt ):
     loc_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(loc_z)
     return loc_z.normalize(loc_dt)
 
+def gh_getFetchInfo():
+    utcTime = datetime.utcnow()
+    return "UTC: " + str(utcTime) + "<br/>" + time.strftime("%Z") + ": " + str(gh_getLocalTime(utcTime))    
+
 #TODO
 @app.before_request
 def verify_user():
@@ -98,8 +102,11 @@ def verify_user():
 @app.route( "/" )
 def index( ):
     strNav = '<a href="/">' + ghSITE_NAME + '</a>'
-    utcTime = datetime.utcnow()
-    strErratae = "Fetched @ " + str(utcTime) + " / " + str(gh_getLocalTime(utcTime))
+
+    strErratae = gh_getFetchInfo()
+    
+    #TODO get from session if possible
+    strSiteUserName = request.remote_addr
     
     #get user list
     view_users = BlogzUser.query.all()
@@ -116,16 +123,20 @@ def index( ):
     if ghDEBUG:
         print( view_users )
     
-    return render_template('index.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_HOME, ghSlogan=getSlogan(), ghUser_Name=request.remote_addr, ghNav=Markup(strNav), ghErratae=strErratae, ghUsers=view_users)
+    return render_template('index.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_HOME, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), ghErratae=Markup(strErratae), ghUsers=view_users)
 
 # ROUTE: '/features' :: Feature List Page
 
 # ROUTE: '/blog' :: Blog View Page
 @app.route( "/blog" )
 def blog( ):
+    #TODO adjust nav string if different view (single, user)    
     strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/blog">' + ghPAGE_BLOG + '</a>'
-    #TODO adjust nav string if different view (single, user)
-    return render_template('blog.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_BLOG, ghSlogan=getSlogan(), ghNav=Markup(strNav) )
+    #TODO get from session if possible
+    strSiteUserName = request.remote_addr
+    strErratae = gh_getFetchInfo()
+    
+    return render_template('blog.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_BLOG, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), ghErratae=Markup(strErratae) )
 
 @app.route( "/login", methods=['POST', 'GET'] )
 def login( ):
@@ -133,6 +144,9 @@ def login( ):
     strUserName = ""
     
     strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/login">' + ghPAGE_LOGIN + '</a>' 
+    #TODO get from session if possible
+    strSiteUserName = request.remote_addr
+    strErratae = gh_getFetchInfo()
     
     if request.method == 'POST':
         
@@ -178,7 +192,7 @@ def login( ):
             #TODO invalid user message??
             strErrMsg = "Invalid User Specified"
         
-    return render_template('login.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_LOGIN, ghSlogan=getSlogan(), ghNav=Markup(strNav), vErrMsg=strErrMsg, vUserName=strUserName )
+    return render_template('login.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_LOGIN, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), vErrMsg=strErrMsg, vUserName=strUserName, ghErratae=Markup(strErratae) )
 
 @app.route( "/logout" )
 def logout( ):
@@ -194,6 +208,9 @@ def validate_signup( strUserName, strUserPass0, strUserPass1, strUserEmail):
 def signup( ):   
     # BUILD nav string
     strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/signup">' + ghPAGE_SIGNUP + '</a>'
+    #TODO get from session if possible
+    strSiteUserName = request.remote_addr
+    strErratae = gh_getFetchInfo()
     
     # POST condition
     if request.method == 'POST':
@@ -253,14 +270,18 @@ def signup( ):
         #NOTE: email is not required
     
     
-        return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghNav=Markup(strNav), strUserName=strUserName, strUserEmail=strUserEmail, statusUserName=statusUserName, statusUserPass0=statusUserPass0, statusUserPass1=statusUserPass1, statusUserEmail=statusUserEmail, strerrUserName=strerrUserName, strerrUserPass0=strerrUserPass0, strerrUserPass1=strerrUserPass1, strerrUserEmail=strerrUserEmail )
+        return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), strUserName=strUserName, strUserEmail=strUserEmail, statusUserName=statusUserName, statusUserPass0=statusUserPass0, statusUserPass1=statusUserPass1, statusUserEmail=statusUserEmail, strerrUserName=strerrUserName, strerrUserPass0=strerrUserPass0, strerrUserPass1=strerrUserPass1, strerrUserEmail=strerrUserEmail, ghErratae=Markup(strErratae) )
     
-    return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghNav=Markup(strNav) )
+    return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), ghErratae=Markup(strErratae) )
 
 @app.route( "/newpost", methods=['POST', 'GET'] )
 def newpost( ):
     strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/blog">' + ghPAGE_NEWPOST + '</a>'
-    return render_template('newpost.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_NEWPOST, ghSlogan=getSlogan(), ghNav=Markup(strNav) )
+    #TODO get from session if possible
+    strSiteUserName = request.remote_addr
+    strErratae = gh_getFetchInfo()    
+    
+    return render_template('newpost.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_NEWPOST, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), ghErratae=Markup(strErratae) )
 
 def main():
     app.run()

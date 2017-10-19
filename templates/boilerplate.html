@@ -21,32 +21,37 @@
 				font-size: 12pt;
 			}
 			
-			body {
-                padding: .5em;
+			.bodyEncap {
+                padding-top: .5em;
+                padding-left: .5em;
+                padding-right: .5em;
                 background-color: #fff;
                 border-radius: .25em;
 			}
 			
-			h1, h3, h4 {
+			h1, h2, h3, h4 {
 				margin: 0;
 				padding: 0;
+
+			}
+
+			/* h2 is NOT inline... */
+			h1, h3, h4 {
 				display: inline;
-			}
-			
+            }
+            
 			h2 {
-                margin: 0;
-                padding: 0;
-				font-family: Righteous;
+/* 				font-family: Righteous; */
 			}
 			
-			footer {
-				display: flex;
-				flex-direction: row;
-				align-items: left;
-				align-content: center;
-				justify-content: space-between;
-				width: 100%;
-			}
+/* 			footer { */
+/* 				display: flex; */
+/* 				flex-direction: row; */
+/* 				align-items: left; */
+/* 				align-content: center; */
+/* 				justify-content: space-between; */
+/* 				width: 100%; */
+/* 			} */
 			
 			.flexLine {
 				display: flex;
@@ -67,6 +72,7 @@
                 width: 100%;
                 font-size: 125%;
                 font-weight: bold;
+                margin-left: .25em;
 			}
 			
 			.navMain a {
@@ -93,9 +99,10 @@
 			}
 			
 			footer nav {
+                text-align: center;
 			}
 			
-			footer p {
+			.ghCopyright {
                 color: #999;
 				font-style: italic;
 				font-size: 75%;
@@ -146,51 +153,63 @@
             .titleArea nav {
                 display: inline;
             }
+            
+            .ghErratae {
+                font-size: 50%;
+                font-family: "Source Code Pro";
+                text-align: right;
+/*                 border: 2pt ridge; */
+/*                 border-radius: .25em; */
+            }
     }
 
 		</style>
     </head>
     <body>
-    		<a name="top"></a>
-	<header>
-        <div class="flexLine">
-            <div class="titleArea">
-                <h1>{{ghSite_Name}}</h1>
-                <nav class="navMain">
-                <!-- TODO:: current page as selected 'tab' -->
-                <a href="/">&#x21E7;home</a> . <a href="blog">&#x269E;posts</a>
-                </nav>
-                <div>
-                    <h2>{{ghPage_Title}}</h2>
+        <a name="top"></a>
+        <div class="bodyEncap">
+            <header>
+                <div class="flexLine">
+                    <div class="titleArea">
+                        <h1>{{ghSite_Name}}</h1>
+                        <nav class="navMain">
+                            <!-- TODO:: current page as selected 'tab' -->
+                            <a href="/">&#x21E7;home</a> . <a href="blog">&#x269E;posts</a>
+                        </nav>
+                        <div>
+                            <h2>{{ghPage_Title}}</h2>
+                            <nav>
+                                &#x21B3;&nbsp;{{ghNav}}
+                            </nav>
+                        </div>
+                    </div>
+                    <div class="slogan">{{ghSlogan}}</div>
                     <nav>
-                        &#x21B3;&nbsp;{{ghNav}}
+                        <!-- TODO: customize based on user session -->
+                        User: {{ghUser_Name}}<br/>
+                        [ <a href="newpost">&#x270E;new post</a> | <a href="signup">signup</a> | <a href="login">login</a> | <a href="logout">logout</a> ] 
                     </nav>
                 </div>
-            </div>
-			<div class="slogan">{{ghSlogan}}</div>
-			<nav>
-                <!-- TODO: customize based on user session -->
-				User: {{ghUser_Name}}<br/>
-				[ <a href="newpost">&#x270E;new post</a> | <a href="signup">signup</a> | <a href="login">login</a> | <a href="logout">logout</a> ] 
-			</nav>
-        </div>
-	</header>
-	<main>
-		<div class="pageContent">
-            {% block content %}
-            {% endblock %}
-        </div>
-	</main>
-	<footer>
-			<nav>
-				[ <a href="#top">&uarr;top</a> <!--| <a href="flop">&weierp;poker</a> -->]
-			</nav>
-			<p>
+            </header>
+            <main>
+                <div class="pageContent">
+                    {% block content %}
+                    {% endblock %}
+                </div>
+            </main>
+            <footer>
+                <nav>
+                    [ <a href="#top">&uarr;top</a> <!--| <a href="flop">&weierp;poker</a> -->]
+                </nav>
+            </footer>
+        </div> <!--bodyEncap-->
+        <div class="flexLine">
+            <div class="ghErratae">
                 {{ghErratae}}
-			</p>
-			<p>
-				Copyright &copy; 2017, Geoffrey Hadler
-			</p>
-	</footer>
-    </body>
+            </div>
+            <div class="ghCopyright">
+                Copyright &copy; 2017, Geoffrey Hadler
+            </div>
+        </div>
+	</body>
 </html>

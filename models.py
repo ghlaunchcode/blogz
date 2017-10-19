@@ -6,7 +6,7 @@
 #
 # 2017, Geoffrey Hadler [for LC101:u2]
 
-from app import db, BlogzUser
+from app import db, BlogzUser, BlogzEntry
 
 
 

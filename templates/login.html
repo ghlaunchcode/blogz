@@ -1,12 +1,22 @@
 {% extends "boilerplate.html" %}
 {% block content %}
+<style>
+    .errArea {
+        color: #f00;
+        padding: .25em;
+    }
+</style>
 <h3>Login</h3>
-<p>{{vErrMsg}}</p>
+<div class="errArea">{{vErrMsg}}&nbsp;</div>
 <form action="login" method="POST">
-    <label for="inUserName">User Name</label>
-    <input type="text" name="inUserName" value="{{vUserName}}" />
-    <label for="inUserPass">Password</label>
-    <input type="password" name="inUserPass"/>
-    <input type="submit"/>
+    <div>
+        <label for="inUserName">User Name:</label>
+        <input type="text" name="inUserName" value="{{vUserName}}" />
+    </div>
+    <div>
+        <label for="inUserPass">Password:</label>
+        <input type="password" name="inUserPass"/>
+    </div>
+    <input type="submit" value="login"/>
 </form>
 {% endblock %}

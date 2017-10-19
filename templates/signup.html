@@ -4,18 +4,14 @@
 <section name="content">
     <!-- style nearby as reminder -->
     <style>
-        h2 {
-            margin: .1em;
-            padding: 0;
-        }
 
         form {
 /*             background: #ccc; */
 /*             border: 2pt ridge; */ 
             border-radius: 1em;
-            margin: .5em;
+/*             margin: .5em; */
             /*width: 80%;*/
-            padding: 1em;
+/*             padding: 1em; */
         }
 
         .encapField {
@@ -65,15 +61,15 @@
             visibility: visible;
         }
 
-/*         .rightField { */
-/*             text-align: right; */
+         .rightField { 
+             text-align: right;
 /*             width: 100%; */
-/*         } */
+        }
     </style>
 
     <form action="signup" method="POST">
-        <h2>User Signup</h2>
-        <hr />
+        <h3>User Signup</h3>
+
         <div class="inField {{statusUserName}}">
             <span class="lineIcon">&#x2613;</span>
             <label for="inUserName">User Name:</label>
@@ -102,7 +98,11 @@
             <span class="lineIcon">&larr;</span>
             <span class="msgError">{{strerrUserEmail}}</span>
         </div>
-        <div class="rightField">
+
+        <!-- this JUST WORKS, ok! -->
+        <div class="inField">
+            <span class="lineIcon">&#x2613;</span>
+            <label>&nbsp;</label>
             <input type="submit"/>
         </div>
     </form>
