@@ -171,7 +171,7 @@ CREATE a root user with a high loglevel (and simple password):
 
 `$ source mega/bin/activate`
 
-[ `$ util/init_pydep` ]
+`$ util/init_pydep` (if dependencies required)
 
 `$ python app.py`
 

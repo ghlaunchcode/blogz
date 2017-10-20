@@ -60,9 +60,9 @@ Old Quick Start
 
 Will require password for MySQL *root*
 
-\$ util/init\_all && util/startserver\_init
+`$ util/init_all`
 
-Initializes: \* schema \* user / roles \* virtual environment *mega* \* BlogzEntry \* BlogzUser \* Creates a *root* user for BlogzUser
+Initializes: \* schema (db) \* user / roles \* virtual environment *mega* \* python dependencies \* BlogzEntry \* BlogzUser \* Creates a *root* user for BlogzUser
 
 Initialize the Virtual Environment
 ==================================
@@ -90,6 +90,13 @@ This script executes queries (3, actually) in util/createdb.sql.
 > the script assumes a user *root*, and will require entry of that password.
 
 (Simply hardcoding the password is very bad practice and would be recorded in bash history)
+
+Using .sql file
+---------------
+
+Redirect the file into the mysql client CLI:
+
+`$ mysql -u root -p < util/createdb.sql`
 
 Using mysql-workbench
 ---------------------
@@ -123,6 +130,23 @@ Create initial TABLES
 
 If the dependencies are only available to the virtual environment, fire that up
 
+Using util script
+-----------------
+
+`$ util/init_models`
+
+The virtual environment will be handled automatically.
+
+> **Note**
+>
+> this requires the virtual environment as well as the db/user and the python dependencies.
+
+`$ util/init_dbenv` `$ util/init_virtualenv` `$ util/init_pydep`
+
+> **Note**
+>
+> the init\_models does not yet check for redundancy (yet: TODO!)
+
 Using models.py
 ---------------
 
@@ -132,36 +156,27 @@ Using models.py
 
 `$ python models.py`
 
-To more easily accomplish this, try:
-
-`$ util/init_models`
-
-The virtual environment will be handled automatically.
-
 Using CLI
 ---------
 
-Open python CLI: `$ python`
+Open python CLI: `$ python3`
+
+> **Note**
+>
+> python3 is specifically called in case `python` points to a different version.
 
 `>>> from app import db` CREATE the TABLES `>>> from models import BlogzUser, BlogzEntry` `>>> db.create_all()`
 
 CREATE a root user with a high loglevel (and simple password): `>>> new_user = BlogzUser( "root", "root" "root@localhost", 7 )` `>>> db.session.add( new_user )` `>>> db.session.commit()`
 
-New Walkthru
-============
-
-> **Note**
->
-> this no longer exists!!!
-
-\$ util/startserver
-
 Old Walkthru
 ============
 
-\$ source mega/bin/activate
+`$ source mega/bin/activate`
 
-\$ python app.py
+`$ util/init_pydep` (if dependencies required)
+
+`$ python app.py`
 
 Starting Over
 =============
@@ -201,8 +216,21 @@ Templates
 
 Located in the *templates* folder
 
+Static
+------
+
+There are currently no static data. Styles have been inlined to avoid caching for development and favicon is (will be) a route view.
+
 Variables
 ---------
+
+There are many important variables.
+
+-   ghDEBUG (bool) to enable/disable debugging (including print() outputs)
+
+-   Template Variables passed to render\_template()
+
+-   Organizational Variables to avoid hardcoding
 
 \#TODO: these are deprecated!!!
 
@@ -210,6 +238,8 @@ ghSite\_Name ghPage\_Title
 
 The database
 ------------
+
+\#TODO: there is still some finalization to be done to the models!!!
 
 The database should be called blogz and accessible by user blogz.
 
@@ -230,4 +260,54 @@ To create the actual models (tables), use:
 Please note this requires the virtual environment and the python dependencies:
 
 `$ util/init_virtualenv && util/init_pydep`
+
+Routes
+------
+
+There are a few ways to handle access: \* Allowed Routes (whitelist) \* \* Must be updated for new routes \* \* DON’T FORGET *favicon.ico* IS A ROUTE \* Restricted Routes (blacklist) \* \* Possibly more easily implemented \* \* Also used when routes are *redundant*, like a login or register when a user is already in!
+
+Instead of creating a *singleUser* route for posts, this is handled with GET requests.
+
+/blog
+
+-   id : integer \> 0, otherwise no return
+
+-   user : valid user, otherwise no return
+
+These can be used together with manual URI entry and will properly limit. However there is no actual link tag to provide this functionality.
+
+For example:
+
+`blog?id=5&user=root`
+
+Will only return post id=5 if it is by the specified user.
+
+-   limit : integer \>= 0, where 0 is NO LIMIT
+
+-   page : integer : used when limit is specified
+
+Date and Time
+-------------
+
+These are a bit of a pickle.
+
+All dates and times are stored on the server in UTC.
+
+Currently, these are converted to server local time when displayed, but ideally would adapt to user’s time zone (and DST)
+
+Password Hashing
+----------------
+
+Currently just a simple hash is created using bcrypt.
+
+This is then decoded into utf-8.
+
+This results in a 60-byte hash that is stored instead of the password itself.
+
+Additionally, care is taken to only use necessary columns when enumerating users.
+
+Slogan
+------
+
+Once again, brought in the gh\_slogan module.
 
