@@ -1,0 +1,10 @@
+#! /bin/sh
+
+#NOTE: should be run from project root
+
+echo "INIT database 'blogz' & user 'blogz@localhost:blogz'"
+echo "  NOTE: 'root' login will require password"
+echo "EXECUTE QUERIES from 'util/createdb.sql'"
+
+echo -n "MySQL User 'root' => "
+ mysql -u root -p -v -v -v < util/createdb.sql

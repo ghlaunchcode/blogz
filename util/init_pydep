@@ -1,0 +1,9 @@
+#! /bin/sh
+
+#NOTE: should be run from project root
+
+echo "INSTALL python dependencies for BLOGz"
+
+bash -c "source mega/bin/activate; pip3 install -U tzlocal pytz flask flask_sqlalchemy flask-bcrypt pymysql; exit"
+
+
