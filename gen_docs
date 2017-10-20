@@ -1,0 +1,3 @@
+#! /bin/sh
+
+asciidoc -b docbook -o - README | pandoc -r docbook -w markdown_github -o README.md
