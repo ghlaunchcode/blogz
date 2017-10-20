@@ -122,6 +122,18 @@ def verify_user():
                     print( "Block logged user access to logging facilities" )
                 return redirect( "/", 302 )
 
+
+def get_userdetails():
+    userdetails = []
+    if 'loglevel' in session:
+        userdetails.append( session['handle'] )
+        userdetails.append( '[<a href="logout">log out</a>]' )
+    else:
+        userdetails.append( request.remote_addr )
+        userdetails.append( '[<a href="login">login</a> | <a href="signup">signup</a>]' )
+    
+    return userdetails
+
 # ROUTE: '/' :: Main Site Index
 @app.route( "/" )
 def index( ):
@@ -129,11 +141,10 @@ def index( ):
 
     strErratae = gh_getFetchInfo()
     
-    #TODO get from session if possible
-    if 'loglevel' in session:
-        strSiteUserName = session['handle']
-    else:
-        strSiteUserName = request.remote_addr
+    userdetails = get_userdetails()
+    strSiteUserName = userdetails[0]
+    strSiteUserMenu = userdetails[1]
+    
     
     #get user list without pass_hash
     view_users = BlogzUser.query.options(load_only("handle","email", "level", "count"))
@@ -141,7 +152,7 @@ def index( ):
     if ghDEBUG:
         print( view_users )
     
-    return render_template('index.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_HOME, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), ghErratae=Markup(strErratae), ghUsers=view_users)
+    return render_template('index.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_HOME, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu),ghNav=Markup(strNav), ghErratae=Markup(strErratae), ghUsers=view_users)
 
 # ROUTE: '/features' :: Feature List Page
 
