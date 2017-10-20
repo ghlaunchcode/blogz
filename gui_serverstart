@@ -1,0 +1,4 @@
+#! /bin/sh
+
+xfce4-terminal --hide-menubar --title="BLOGz Flask Server" -x bash -c "echo 'BLOGz Flask Server';source mega/bin/activate; python app.py && exit"
+
