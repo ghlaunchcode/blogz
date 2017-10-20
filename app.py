@@ -96,9 +96,13 @@ def gh_getFetchInfo():
 @app.before_request
 def verify_user():
     #TODO allow users to have privilege level
-    allowed_routes = ['index', 'login', 'signup' ]
+    # currently just checks for >0
+    allowed_routes = ['index', 'login', 'signup', 'blog' ]
+    redundant_routes = ['login', 'signup']
     isAuthentic = False
     
+    # Check for restricted pages
+    #TODO interrim redirect
     if request.endpoint not in allowed_routes:
         if ghDEBUG:
             print( "Attempt to access restricted :: CHECK user auth" )
@@ -109,6 +113,14 @@ def verify_user():
                 isAuthentic = True
         if not isAuthentic:
             return redirect( "login", 302 )
+    
+    # Check for redundancy (logged users trying to relog or create)
+    if isAuthentic:
+        if request.endpoint in redundant_routes:
+            if 'loglevel' in session:
+                if ghDEBUG:
+                    print( "Block logged user access to logging facilities" )
+                return redirect( "/", 302 )
 
 # ROUTE: '/' :: Main Site Index
 @app.route( "/" )
@@ -118,7 +130,10 @@ def index( ):
     strErratae = gh_getFetchInfo()
     
     #TODO get from session if possible
-    strSiteUserName = request.remote_addr
+    if 'loglevel' in session:
+        strSiteUserName = session['handle']
+    else:
+        strSiteUserName = request.remote_addr
     
     #get user list without pass_hash
     view_users = BlogzUser.query.options(load_only("handle","email", "level", "count"))
@@ -192,8 +207,8 @@ def login( ):
         
         #TODO INPUT VALIDATION
         
-        if ghDEBUG:
-            print( "QUERY User Table..." )
+        #if ghDEBUG:
+            #print( "QUERY User Table..." )
 
         rowUserEntry = BlogzUser.query.filter_by( handle = strUserName ).first()
 
@@ -210,18 +225,18 @@ def login( ):
             if ghDEBUG:
                 print( rowUserEntry )
                 print( "handle:",rowUserEntry.handle,"pass:",rowUserEntry.pass_hash,"email:",rowUserEntry.email,"level:",rowUserEntry.level )
-                
-            if ghDEBUG:
                 print( "Compare password hashes..." )
             
             isValidPassword = bcrypt.check_password_hash( rowUserEntry.pass_hash, strUserPass )
             
             if ghDEBUG:
-                print( isValidPassword )
+                print( "isValidPassword:", isValidPassword )
                 
             if isValidPassword:
-                #TODO login 
-                placeholder = 0
+                # LOG IN
+                session['loglevel'] = rowUserEntry.level
+                session['handle'] = rowUserEntry.handle
+                return redirect("/", 302)
             else:
                 #TODO invalid password message??
                 strErrMsg = "Invalid Password Specified"
@@ -233,7 +248,8 @@ def login( ):
 
 @app.route( "/logout" )
 def logout( ):
-    #TODO
+    #TODO interrim logout screen
+    del session['loglevel']
     return redirect( "/", 302 )
 
 def validate_signup( strUserName, strUserPass0, strUserPass1, strUserEmail):
