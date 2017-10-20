@@ -29,7 +29,7 @@ app = Flask( __name__ )
 app.config['DEBUG'] = ghDEBUG
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:3306/blogz'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-g_app.config['SQLALCHEMY_ECHO' ] = ghDEBUG
+app.config['SQLALCHEMY_ECHO' ] = False #ghDEBUG
 
 #for late-loading (comes from models.py)
 #db.init_app(app)
@@ -92,38 +92,7 @@ def gh_getFetchInfo():
     utcTime = datetime.utcnow()
     return "UTC: " + str(utcTime) + "<br/>" + time.strftime("%Z") + ": " + str(gh_getLocalTime(utcTime))    
 
-#TODO
-@app.before_request
-def verify_user():
-    #TODO allow users to have privilege level
-    # currently just checks for >0
-    #TODO create blacklist instead?
-    allowed_routes = ['index', 'login', 'signup', 'blog' ]
-    redundant_routes = ['login', 'signup']
-    isAuthentic = False
-    
-    # Check for restricted pages
-    #TODO interrim redirect
-    if request.endpoint not in allowed_routes:
-        if ghDEBUG:
-            print( "Attempt to access restricted :: CHECK user auth" )
-        if 'loglevel' in session:
-            if session['loglevel'] > 0:
-                if ghDEBUG:
-                    print( "Found Authenticity" )
-                isAuthentic = True
-        if not isAuthentic:
-            return redirect( "login", 302 )
-    
-    # Check for redundancy (logged users trying to relog or create)
-    if isAuthentic:
-        if request.endpoint in redundant_routes:
-            if 'loglevel' in session:
-                if ghDEBUG:
-                    print( "Block logged user access to logging facilities" )
-                return redirect( "/", 302 )
-
-
+# Build user panel
 def get_userdetails():
     userdetails = []
     if 'loglevel' in session:
@@ -135,7 +104,32 @@ def get_userdetails():
     
     return userdetails
 
+# Concise BLACKLIST / REDUNDANCY checking
+@app.before_request
+def verify_user():
+    #TODO allow users to have privilege level :: currently just checks for >0
+    
+    #it's easier to do this here and now
+    isAuthentic = False
+    if 'loglevel' in session:
+        if session['loglevel'] > 0:
+            isAuthentic = True
+    
+    # Check for restricted pages
+    if not isAuthentic:
+        #CREATE blacklist (ONLY IF NECESSARY)
+        restricted_routes = ['newpost', 'logout']
+        if request.endpoint in restricted_routes:
+            return redirect( "login", 302 )
+    else:
+        # Check for redundancy (logged users trying to relog or create)
+        redundant_routes = ['login', 'signup']
+        if request.endpoint in redundant_routes:
+            return redirect( "/", 302 )
+
+
 # ROUTE: '/' :: Main Site Index
+# open access
 @app.route( "/" )
 def index( ):
     strNav = '<a href="/">' + ghSITE_NAME + '</a>'
@@ -158,18 +152,18 @@ def index( ):
 # ROUTE: '/features' :: Feature List Page
 
 # ROUTE: '/blog' :: Blog View Page
+# open access
 @app.route( "/blog" )
 def blog( ):
     #TODO adjust nav string if different view (single, user)    
     strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/blog">' + ghPAGE_BLOG + '</a>'
-    #TODO get from session if possible
-    strSiteUserName = request.remote_addr
     strErratae = gh_getFetchInfo()
     userdetails = get_userdetails()
     strSiteUserName = userdetails[0]
     strSiteUserMenu = userdetails[1]
 
-    #TODO determine if user view
+    # DETERMINE view TYPE
+    strUserName = request.args.get('user')
     strViewId = request.args.get('id')
     if strViewId == None:
         intViewId = 0
@@ -179,7 +173,7 @@ def blog( ):
         except:
             intViewId = 0
         
-    #print( strUserName )
+    print( strUserName )
     if strUserName == None:
         if intViewId > 0:
             strNav += ' :: <a href="?id=' + strViewId + '">id=' + strViewId + '</a>'
@@ -204,6 +198,8 @@ def blog( ):
  
     return render_template('blog.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_BLOG, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), ghErratae=Markup(strErratae), ghEntries = view_entries)
 
+# ROUTE '/login' :: User Login Page
+# blacklist = redundancy
 @app.route( "/login", methods=['POST', 'GET'] )
 def login( ):
     strErrMsg = ""
@@ -234,19 +230,19 @@ def login( ):
         else:
             isValidUser = False
         
-        if ghDEBUG:
-            print( "Valid User:", isValidUser )
+        #if ghDEBUG:
+            #print( "Valid User:", isValidUser )
 
         if isValidUser:
-            if ghDEBUG:
-                print( rowUserEntry )
-                print( "handle:",rowUserEntry.handle,"pass:",rowUserEntry.pass_hash,"email:",rowUserEntry.email,"level:",rowUserEntry.level )
-                print( "Compare password hashes..." )
+            #if ghDEBUG:
+                #print( rowUserEntry )
+                #print( "handle:",rowUserEntry.handle,"pass:",rowUserEntry.pass_hash,"email:",rowUserEntry.email,"level:",rowUserEntry.level )
+                #print( "Compare password hashes..." )
             
             isValidPassword = bcrypt.check_password_hash( rowUserEntry.pass_hash, strUserPass )
             
-            if ghDEBUG:
-                print( "isValidPassword:", isValidPassword )
+            #if ghDEBUG:
+                #print( "isValidPassword:", isValidPassword )
                 
             if isValidPassword:
                 # LOG IN
@@ -262,17 +258,20 @@ def login( ):
         
     return render_template('login.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_LOGIN, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), vErrMsg=strErrMsg, vUserName=strUserName, ghErratae=Markup(strErratae) )
 
+# ROUTE '/logout' :: User Logout / End Session
+# blacklist = restricted
 @app.route( "/logout" )
 def logout( ):
     #TODO interrim logout screen
     del session['loglevel']
     return redirect( "/", 302 )
 
-def validate_signup( strUserName, strUserPass0, strUserPass1, strUserEmail):
-    return True
+#TODO
+#def validate_signup( strUserName, strUserPass0, strUserPass1, strUserEmail):
+    #return True
 
-# ROUTE 'signup' :: User Signup
-# Now separates POST logic and variables
+# ROUTE 'signup' :: User Signup -- separates POST / GET logic
+# blacklist = redundant
 @app.route( "/signup", methods=['POST','GET'] )
 def signup( ):   
     # BUILD nav string
@@ -415,6 +414,8 @@ def signup( ):
     
     return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), ghErratae=Markup(strErratae) )
 
+# ROUTE "/newpost" :: Create a new blog entry
+# blacklist = restricted
 @app.route( "/newpost", methods=['POST', 'GET'] )
 def newpost( ):
     strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/blog">' + ghPAGE_NEWPOST + '</a>'
