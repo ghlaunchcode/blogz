@@ -29,14 +29,14 @@ app = Flask( __name__ )
 app.config['DEBUG'] = ghDEBUG
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:3306/blogz'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-#g_app.config['SQLALCHEMY_ECHO' ] = True
+g_app.config['SQLALCHEMY_ECHO' ] = ghDEBUG
 
 #for late-loading (comes from models.py)
 #db.init_app(app)
 db = SQLAlchemy( app )
 bcrypt = Bcrypt( app )
 
-app.secret_key = bcrypt.generate_password_hash( 'BLOGz unique' )
+app.secret_key = bcrypt.generate_password_hash( 'wicked stylez' )
 
 # BLOGz User Model
 class BlogzUser( db.Model ):
@@ -97,6 +97,7 @@ def gh_getFetchInfo():
 def verify_user():
     #TODO allow users to have privilege level
     # currently just checks for >0
+    #TODO create blacklist instead?
     allowed_routes = ['index', 'login', 'signup', 'blog' ]
     redundant_routes = ['login', 'signup']
     isAuthentic = False
@@ -164,9 +165,11 @@ def blog( ):
     #TODO get from session if possible
     strSiteUserName = request.remote_addr
     strErratae = gh_getFetchInfo()
-    #view_entries = []
+    userdetails = get_userdetails()
+    strSiteUserName = userdetails[0]
+    strSiteUserMenu = userdetails[1]
+
     #TODO determine if user view
-    strUserName = request.args.get('user')
     strViewId = request.args.get('id')
     if strViewId == None:
         intViewId = 0
@@ -199,7 +202,7 @@ def blog( ):
     for i in view_entries:
         i.created = gh_getLocalTime(i.created)
  
-    return render_template('blog.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_BLOG, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), ghErratae=Markup(strErratae), ghEntries = view_entries)
+    return render_template('blog.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_BLOG, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), ghErratae=Markup(strErratae), ghEntries = view_entries)
 
 @app.route( "/login", methods=['POST', 'GET'] )
 def login( ):
@@ -208,7 +211,9 @@ def login( ):
     
     strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/login">' + ghPAGE_LOGIN + '</a>' 
     #TODO get from session if possible
-    strSiteUserName = request.remote_addr
+    userdetails = get_userdetails()
+    strSiteUserName = userdetails[0]
+    strSiteUserMenu = userdetails[1]
     strErratae = gh_getFetchInfo()
     
     if request.method == 'POST':
@@ -255,7 +260,7 @@ def login( ):
             #TODO invalid user message??
             strErrMsg = "Invalid User Specified"
         
-    return render_template('login.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_LOGIN, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), vErrMsg=strErrMsg, vUserName=strUserName, ghErratae=Markup(strErratae) )
+    return render_template('login.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_LOGIN, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), vErrMsg=strErrMsg, vUserName=strUserName, ghErratae=Markup(strErratae) )
 
 @app.route( "/logout" )
 def logout( ):
@@ -272,8 +277,9 @@ def validate_signup( strUserName, strUserPass0, strUserPass1, strUserEmail):
 def signup( ):   
     # BUILD nav string
     strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/signup">' + ghPAGE_SIGNUP + '</a>'
-    #TODO get from session if possible
-    strSiteUserName = request.remote_addr
+    userdetails = get_userdetails()
+    strSiteUserName = userdetails[0]
+    strSiteUserMenu = userdetails[1]
     strErratae = gh_getFetchInfo()
     
     # POST condition
@@ -397,7 +403,7 @@ def signup( ):
                 strerrUserName += ERRSTR_USER_EXIST
         
         if not isSuccess:
-            return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), strUserName=strUserName, strUserEmail=strUserEmail, statusUserName=statusUserName, statusUserPass0=statusUserPass0, statusUserPass1=statusUserPass1, statusUserEmail=statusUserEmail, strerrUserName=strerrUserName, strerrUserPass0=strerrUserPass0, strerrUserPass1=strerrUserPass1, strerrUserEmail=strerrUserEmail, ghErratae=Markup(strErratae) )
+            return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), strUserName=strUserName, strUserEmail=strUserEmail, statusUserName=statusUserName, statusUserPass0=statusUserPass0, statusUserPass1=statusUserPass1, statusUserEmail=statusUserEmail, strerrUserName=strerrUserName, strerrUserPass0=strerrUserPass0, strerrUserPass1=strerrUserPass1, strerrUserEmail=strerrUserEmail, ghErratae=Markup(strErratae) )
         
         # fallthrough to commit new entry
         # default level is 1 / count is 0 behind scenes
@@ -407,16 +413,18 @@ def signup( ):
         # TODO redirect to an interrim info page?
         return redirect('login', 302)
     
-    return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), ghErratae=Markup(strErratae) )
+    return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), ghErratae=Markup(strErratae) )
 
 @app.route( "/newpost", methods=['POST', 'GET'] )
 def newpost( ):
     strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/blog">' + ghPAGE_NEWPOST + '</a>'
     #TODO get from session if possible
-    strSiteUserName = request.remote_addr
+    userdetails = get_userdetails()
+    strSiteUserName = userdetails[0]
+    strSiteUserMenu = userdetails[1]
     strErratae = gh_getFetchInfo()    
     
-    return render_template('newpost.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_NEWPOST, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghNav=Markup(strNav), ghErratae=Markup(strErratae) )
+    return render_template('newpost.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_NEWPOST, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), ghErratae=Markup(strErratae) )
 
 def main():
     app.run()
