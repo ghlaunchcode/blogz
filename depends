@@ -1,0 +1,6 @@
+tzlocal
+pytz
+flask
+flask_sqlalchemy
+flask-bcrypt
+pymysql

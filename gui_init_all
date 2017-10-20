@@ -1,3 +1,1 @@
-#! /bin/sh
-
-xfce4-terminal --hide-menubar --title="BLOGz::INIT ALL" -x bash -c "util/init_all && exit"
+util/gui_init_all

@@ -3,7 +3,11 @@
 #NOTE: should be run from project root
 
 echo "INIT::ALL for BLOGz"
+
+# Do first as password is required
+util/init_dbenv
+
+# Order here matters!
 util/init_virtualenv
 util/init_pydep
-util/init_dbenv
 util/init_models

@@ -1,3 +1,1 @@
-#! /bin/sh
-
-xfce4-terminal --hide-menubar --title="BLOGz::REMOVE ALL" -x bash -c "util/rm_all && exit"
+util/gui_rm_all
