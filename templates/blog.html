@@ -34,7 +34,9 @@
     <nav>
         <!-- TODO make this say what view we're using -->
         <h3>BLOG posts&nbsp;</h3>
+        {% if session.loglevel %}
         [ <a href="newpost">&#x270E;new post</a> ]
+        {% endif %}
     </nav>
 <!--	
 	<div class="ghBlogViewOptions">
@@ -63,20 +65,18 @@
 -->	
 	<div class="ghBlogView">
 
-	<!-- TODO -->
-	{% if not ghEntries %} 
-		<p>No data to show.</p>
-	{% else %}
-		{% for entry in ghEntries %}
-			<div class="ghBlogEntry">
-			<h3><a href="?id={{entry.id}}">{{entry.title}}</a></h3>
-			<div><a href="blog?user={{entry.user}}">{{entry.user}}</a>
-			{{entry.email}}<span class="createdDateTime">{{entry.created}}</span></div>
-			<!-- TODO; for users' own posts <h6>[ &#x2710;edit | &#x2718;remove ]</h6> -->
-			<p>{{entry.entry}}</p>
+    {% for entry in ghEntries %}
+        <div class="ghBlogEntry">
+		<h3><a href="?id={{entry.id}}">{{entry.title}}</a></h3>
+		<div><a href="blog?user={{entry.user}}">{{entry.user}}</a>
+		{{entry.email}}<span class="createdDateTime">{{entry.created}}</span></div>
+		<!-- TODO; for users' own posts <h6>[ &#x2710;edit | &#x2718;remove ]</h6> -->
+		<p>{{entry.entry}}</p>
 
-			</div>
-		{% endfor %}
-	{% endif %}
-	</div>
+		</div>
+    {% else %}
+        <p>No entries to show.</p>
+    {% endfor %}
+
+    </div>
 {% endblock %}

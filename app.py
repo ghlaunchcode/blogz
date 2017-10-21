@@ -248,11 +248,11 @@ def login( ):
                 session['loglevel'] = rowUserEntry.level
                 session['handle'] = rowUserEntry.handle
                 
-                strTarget = request.args.get['target']
-                if not target:
-                    return redirect("/"+target, 302)
-                else:
-                    return redirect("/blog?user="+session['handle'], 302)
+                ##strTarget = request.args.get['target']
+                #if not target:
+                    #return redirect("/"+target, 302)
+                #else:
+                return redirect("/blog?user="+session['handle'], 302)
             else:
                 strErrMsg = "Invalid Password Specified"
         else:
