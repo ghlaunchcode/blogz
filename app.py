@@ -5,7 +5,7 @@
 # 2017, polarysekt
 
 # imports
-from flask import Flask, Markup, request, redirect, url_for, render_template, session
+from flask import Flask, Markup, request, redirect, url_for, send_from_directory, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import load_only
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -133,6 +133,10 @@ def verify_user():
         redundant_routes = ['login', 'signup']
         if request.endpoint in redundant_routes:
             return redirect( "/", 302 )
+
+@app.route( "/favicon.ico" )
+def favicon():
+    return send_from_directory( os.path.join(app.root_path, 'static'), 'favicon.ico' )
 
 # ROUTE: '/' :: Main Site Index : open access
 @app.route( "/" )
