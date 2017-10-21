@@ -1,0 +1,14 @@
+{
+	"name": "blogz",
+	"description": "lc101 u2 final project",
+	"image": "heroku/python",
+	"repository": "https://www.github.com/polarysekt/blogz.git",
+	"addons": [ "heroku-postgresql" ],
+	"environments" : {
+		"test": {
+			"scripts": {
+				"test": "python app.py"
+			}
+		}
+	}
+}
