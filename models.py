@@ -1,3 +1,5 @@
+#! mega/bin/python
+
 #models.py
 # BLOGz-specific Models
 # TODO:

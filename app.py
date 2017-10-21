@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! mega/bin/python
 
 # app.py
 # Build A Blog
@@ -132,7 +132,7 @@ def verify_user():
         #CREATE blacklist (ONLY IF NECESSARY)
         restricted_routes = ['newpost', 'logout']
         if request.endpoint in restricted_routes:
-            return redirect( "login", 302 )
+            return redirect( "login?target="+request.endpoint, 302 )
     else:
         # Check for redundancy (logged users trying to relog or create)
         redundant_routes = ['login', 'signup']
@@ -155,11 +155,7 @@ def index( ):
     
     #get user list without pass_hash
     view_users = BlogzUser.query.options(load_only("handle","email", "level"))
-    
-    #for i in view_users:
-    #    i.count = len(i.posts)
-    #    print( i.handle, "=", i.count )
-    
+        
     return render_template('index.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_HOME, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu),ghNav=Markup(strNav), ghErratae=Markup(strErratae), ghUsers=view_users)
 
 # ROUTE: '/features' :: Feature List Page
@@ -208,8 +204,6 @@ def blog( ):
  
     #convert the dates to local server time
     #TODO get users local time?
-    #if( len(view_entries) > 0 ):
-    #TODO get the (user) field to persist
     for i in view_entries:
         i.created = gh_getLocalTime(i.created)
         
@@ -237,43 +231,31 @@ def login( ):
         strUserName = request.form['inUserName']
         strUserPass = request.form['inUserPass']
         
-        #TODO INPUT VALIDATION
-        
-        #if ghDEBUG:
-            #print( "QUERY User Table..." )
-
         rowUserEntry = BlogzUser.query.filter_by( handle = strUserName ).first()
 
-        #TODO: CHECK IF FOUND
+        #CHECK IF FOUND
         if rowUserEntry:
             isValidUser = True
         else:
             isValidUser = False
         
-        #if ghDEBUG:
-            #print( "Valid User:", isValidUser )
-
         if isValidUser:
-            #if ghDEBUG:
-                #print( rowUserEntry )
-                #print( "handle:",rowUserEntry.handle,"pass:",rowUserEntry.pass_hash,"email:",rowUserEntry.email,"level:",rowUserEntry.level )
-                #print( "Compare password hashes..." )
             
             isValidPassword = bcrypt.check_password_hash( rowUserEntry.pass_hash, strUserPass )
-            
-            #if ghDEBUG:
-                #print( "isValidPassword:", isValidPassword )
-                
+                            
             if isValidPassword:
                 # LOG IN
                 session['loglevel'] = rowUserEntry.level
                 session['handle'] = rowUserEntry.handle
-                return redirect("/blog?user="+session['handle'], 302)
+                
+                strTarget = request.args.get['target']
+                if not target:
+                    return redirect("/"+target, 302)
+                else:
+                    return redirect("/blog?user="+session['handle'], 302)
             else:
-                #TODO invalid password message??
                 strErrMsg = "Invalid Password Specified"
         else:
-            #TODO invalid user message??
             strErrMsg = "Invalid User Specified"
         
     return render_template('login.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_LOGIN, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), vErrMsg=strErrMsg, vUserName=strUserName, ghErratae=Markup(strErratae) )
@@ -413,10 +395,7 @@ def signup( ):
         # only call db req if all else is good
         if isSuccess:
             user_hand = BlogzUser.query.filter_by( handle = strUserName ).options( load_only("handle") ).first()
-            #if ghDEBUG:
-                #print( user_hand )
-                #print( user_hand.handle )
-                #print( user_hand.id )
+
             if user_hand != None:
                 isSuccess = False
                 statusUserName = ERRSTR_STATUS_ERROR
