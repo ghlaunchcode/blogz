@@ -21,7 +21,7 @@ import os
 
 #from models import db, BlogzUser, BlogzEntry
 from gh_slogan import getSlogan
-import gh_strings
+from gh_strings import *
 
 ## ENABLE/DISABLE Debugging ###
 ghDEBUG = True
@@ -40,7 +40,7 @@ bcrypt = Bcrypt( app )
 
 app.secret_key = bcrypt.generate_password_hash( "mediumWicked" )
 
-valid_session_key = bcrypt.generate_password_hash( "uservalid" ).locale("utf-8")
+valid_session_key = bcrypt.generate_password_hash( "uservalid" )
 
 # BLOGz User Model
 class BlogzUser( db.Model ):
@@ -180,7 +180,7 @@ def blog( ):
     for i in view_entries:
         i.created = gh_getLocalTime(i.created)
          
-    return render_template('blog.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_BLOG,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu),ghNav=Markup(strNav),ghErratae=get_fetch_info(),ghEntries=view_entries)
+    return render_template('blog.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_BLOG,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu()),ghNav=Markup(strNav),ghErratae=get_fetch_info(),ghEntries=view_entries)
 
 # ROUTE '/login' :: User Login Page : Redundancy Blacklist
 @app.route( "/login", methods=['POST', 'GET'] )
@@ -221,15 +221,19 @@ def login( ):
                             #return redirect("/"+target, 302)
                         #else:
                         return redirect("/blog?user="+session['handle'], 302)
-
+                    
+                    else:
+                        #FAILED PASS CHECK
+                        ssUserPass = ERRSTR_STATUS_ERROR
+                        strerrUserPass = ERRSTR_BAD_PASS
                 else:
                     # FAILED USER CHECK
                     ssUserName = ERRSTR_STATUS_ERROR
                     strerrUserName = ERRSTR_USER_NOT_FOUND
             else:
                 # FAILED BLANK PASS CHECK
-                ssUserName = ERRSTR_STATUS_ERROR
-                strerrUserName = ERRSTR_EMPTY_FIELD
+                ssUserPass = ERRSTR_STATUS_ERROR
+                strerrUserPass = ERRSTR_EMPTY_FIELD
         else:
             # FAILED BLANK USER CHECK
             ssUserName = ERRSTR_STATUS_ERROR
@@ -386,7 +390,7 @@ def signup( ):
             
     return render_template('signup.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_SIGNUP,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu()),ghNav=Markup(strNav),ghErratae=get_fetch_info() )
 
-# ROUTE "/newpost" :: Create a new blog entry : blacklist = restricted
+# ROUTE "/newpost" :: Create a new blog entry : Restricted Blacklist
 @app.route( "/newpost", methods=['POST', 'GET'] )
 def newpost( ):
     strNav = strNav_base + " :: " + '<a href="/blog">' + ghPAGE_NEWPOST + '</a>'
@@ -414,7 +418,6 @@ def newpost( ):
         #if success
         owner = BlogzUser.query.filter_by(handle=session['handle']).first()
         new_post = BlogzEntry( owner, strTitle, strEntry )
-#        owner.count = owner.count + 1
         db.session.add( new_post )
         db.session.commit()
 

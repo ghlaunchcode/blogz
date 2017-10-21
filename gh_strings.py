@@ -26,3 +26,4 @@ ERRSTR_USER_EXIST = " User already exists!"
 ERRSTR_EMAIL_EXIST = " Email is already in use!"
 
 ERRSTR_USER_NOT_FOUND = " User does not exist!"
+ERRSTR_BAD_PASS = " Password is incorrect!"
