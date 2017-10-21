@@ -1,22 +1,25 @@
 {% extends "boilerplate.html" %}
 {% block content %}
-<style>
-    .errArea {
-        color: #f00;
-        padding: .25em;
-    }
-</style>
 <h3>Login</h3>
-<div class="errArea">{{vErrMsg}}&nbsp;</div>
+<p>Please Login using your user name (handle) and password.</p>
 <form action="login" method="POST">
-    <div>
+
+    <div class="inField {{statusUserName}}">
+        <span class="lineIcon">&#x2613;</span>
         <label for="inUserName">User Name:</label>
-        <input type="text" name="inUserName" value="{{vUserName}}" />
+        <input type="text" name="inUserName" value="{{vUserName}}"/>
+        <span class="lineIcon">&larr;</span>
+        <span class="msgError">{{strerrUserName}}</span>
     </div>
-    <div>
+
+    <div class="inField {{statusUserPass}}">
+        <span class="lineIcon">&#x2613;</span>
         <label for="inUserPass">Password:</label>
         <input type="password" name="inUserPass"/>
+        <span class="lineIcon">&larr;</span>
+        <span class="msgError">{{strerrUserPass}}</span>
     </div>
+
     <input type="submit" value="login"/>
 </form>
 {% endblock %}
