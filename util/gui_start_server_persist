@@ -1,5 +1,6 @@
-#! /bin/sh
+#! /bin/bash
 
 #NOTE will persist on errors
 
-xfce4-terminal --hide-menubar --title="BLOGz Flask Server - PERSISTENT" -x bash -c "util/start_server_persist;exit"
+xfce4-terminal --hide-menubar --title="BLOGz Flask Server - PERSISTENT" -x bash -c "util/start_server_persist;echo "Quitting...";sleep 3;exit"
+

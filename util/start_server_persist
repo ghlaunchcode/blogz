@@ -3,6 +3,11 @@
 #NOTE will persist on errors
 
 echo 'BLOGz Flask Server - PERSISTENT'
+
+
+
+if [[ -d util ]]
+then
 source mega/bin/activate
 while [[ 1 -eq 1 ]]
 do
@@ -27,3 +32,7 @@ done
 echo ""
 done
 exit
+else
+echo "Unable to run script from this location."
+echo "Are you in project root?"
+fi

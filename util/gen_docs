@@ -1,3 +1,9 @@
-#! /bin/sh
+#! /bin/bash
 
+if [[ -d util ]]
+then
 asciidoc -b docbook -o - README | pandoc -r docbook -w markdown_github -o README.md
+else
+echo "Unable to run script from this location."
+echo "Are you in project root?"
+fi

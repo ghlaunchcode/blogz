@@ -36,7 +36,7 @@ app.config['SQLALCHEMY_ECHO' ] = False #ghDEBUG
 #db.init_app(app)
 db = SQLAlchemy( app )
 bcrypt = Bcrypt( app )
-asdl
+
 app.secret_key = bcrypt.generate_password_hash( "mediumWicked" )
 
 # BLOGz User Model

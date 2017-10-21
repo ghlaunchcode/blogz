@@ -1,2 +1,2 @@
 DROP SCHEMA `blogz`;
-DROP USER 'blogz';
+DROP USER 'blogz@localhost';

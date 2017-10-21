@@ -1,10 +1,17 @@
-#! /bin/sh
+#! /bin/bash
 
 #NOTE: should be run from project root
 
-echo "INIT database 'blogz' & user 'blogz@localhost:blogz'"
+echo "REMOVE database 'blogz' & user 'blogz@localhost:blogz'"
+
+if [[ -d util ]]
+then
 echo "  NOTE: 'root' login will require password"
-echo "EXECUTE QUERIES from 'util/createdb.sql'"
+echo "EXECUTE QUERIES from 'util/destroydb.sql'"
 
 echo -n "MySQL User 'root' => "
- mysql -u root -p -v -v -v < util/createdb.sql
+mysql -u root -p -v -v -v < util/destroydb.sql
+else
+echo "Unable to run script from this location."
+echo "Are you in project root?"
+fi

@@ -3,6 +3,13 @@
 #NOTE will NOT persist on errors
 
 echo "BLOGz Flask Server - SINGLE USE"
-source mega/bin/activate; python app.py
+if [[ -d util ]]
+then
+source mega/bin/activate
+python app.py
 echo "SERVER is SHUTDOWN"
 exit
+else
+echo "Unable to run script from this location."
+echo "Are you in project root?"
+fi

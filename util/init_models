@@ -1,9 +1,15 @@
-#! /bin/sh
+#! /bin/bash
 
 #NOTE: should be run from project root
 
-echo "INIT TABLES and CREATE root user with post"
+echo "INIT Models (Tables)"
 
-bash -c "source mega/bin/activate; python3 models.py; exit"
-
-
+if [[ -d util ]]
+then
+source mega/bin/activate
+python3 models.py
+exit
+else
+echo "Unable to run script from this location."
+echo "Are you in project root?"
+fi

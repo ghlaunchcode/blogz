@@ -1,5 +1,6 @@
-#! /bin/sh
+#! /bin/bash
 
 #NOTE will NOT persist on errors
 
-xfce4-terminal --hide-menubar --title="BLOGz Flask Server - SINGLE USE" -x bash -c "util/start_server; sleep 30; exit"
+xfce4-terminal --hide-menubar --title="BLOGz Flask Server - SINGLE USE" -x bash -c "util/start_server; sleep 3; exit"
+

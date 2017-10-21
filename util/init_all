@@ -1,9 +1,12 @@
-#! /bin/sh
+#! /bin/bash
 
 #NOTE: should be run from project root
 
 echo "INIT::ALL for BLOGz"
 
+
+if [[ -d util ]]
+then
 # Do first as password is required
 util/init_dbenv
 
@@ -11,3 +14,7 @@ util/init_dbenv
 util/init_virtualenv
 util/init_pydep
 util/init_models
+else
+echo "Unable to run script from this location."
+echo "Are you in project root?"
+fi

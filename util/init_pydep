@@ -1,8 +1,16 @@
-#! /bin/sh
+#! /bin/bash
 
 #NOTE: should be run from project root
 
 echo "INSTALL python dependencies for BLOGz"
 echo "  using Virtual Environment 'mega'"
 
-bash -c "source mega/bin/activate; pip3 install -q -U --compile -r depends; exit"
+if [[ -d util ]]
+then
+source mega/bin/activate
+pip3 install -q -U --compile -r depends
+exit
+else
+echo "Unable to run script from this location."
+echo "Are you in project root?"
+fi

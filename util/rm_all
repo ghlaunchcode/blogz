@@ -1,7 +1,13 @@
-#! /bin/sh
+#! /bin/bash
 
 #NOTE: should be run from project root
 
 echo "REMOVE::ALL for BLOGz"
-util/rm_virtualenv
+if [[ -d util ]]
+then
 util/rm_dbenv
+util/rm_virtualenv
+else
+echo "Unable to run script from this location."
+echo "Are you in project root?"
+fi
