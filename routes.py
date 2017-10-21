@@ -39,6 +39,7 @@ def verify_user():
         if request.endpoint in redundant_routes:
             return redirect( "/", 302 )
 
+# Provide a favicon.ico (compatible)
 @app.route( "/favicon.ico" )
 def favicon():
     return send_from_directory( os.path.join(app.root_path, 'static'), 'favicon.ico' )
@@ -68,7 +69,11 @@ def blog( ):
     if strUserName:
         #Get owner_id
         #TODO load_only?
-        intOwnerId = BlogzUser.query.filter_by(handle=strUserName).first().id
+        owner_row = BlogzUser.query.filter_by(handle=strUserName).first()
+        if owner_row:
+            intOwnerId = owner_row.id
+        else:
+            intOwnerId = 0
         strNav += ' :: <a href="?user=' + strUserName + '">' + strUserName + "</a>"
         if intViewId > 0:
             strNav += ' & <a href="?id=' + strViewId + '">id=' + strViewId + '</a>'
