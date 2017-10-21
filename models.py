@@ -22,7 +22,7 @@ def initDB():
     print( "    handle: root\n    pass: root\n    email: root@localhost\n    level: 7" )
     new_user = BlogzUser( "root", "root", "root@localhost", 7 )
     new_user = BlogzUser( "root", "root", "root@localhost", 7 )
-    new_user.count = 1
+    #new_user.count = 1
     db.session.add( new_user )
     print( "  + COMMIT" )
     db.session.commit()

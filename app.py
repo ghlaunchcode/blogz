@@ -8,6 +8,7 @@
 from flask import Flask, Markup, request, redirect, url_for, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import load_only
+from sqlalchemy.ext.hybrid import hybrid_property
 from flask_bcrypt import Bcrypt
 
 
@@ -47,14 +48,16 @@ class BlogzUser( db.Model ):
     level = db.Column( db.Integer )
     posts = db.relationship("BlogzEntry", backref="owner")
     #workaround for posts enumeration
-    count = db.Column( db.Integer )
+    @hybrid_property
+    def count(self):
+        return len(self.posts)
     
     def __init__( self, handle, password, email, level ):
         self.handle = handle
         self.pass_hash = bcrypt.generate_password_hash(password).decode('utf-8')
         self.email = email
         self.level = level
-        self.count = 0
+        #self.count = 0
 
 # BLOGz Entry Model
 class BlogzEntry( db.Model ):
@@ -67,6 +70,10 @@ class BlogzEntry( db.Model ):
     created = db.Column( db.DateTime )
     modified = db.Column( db.DateTime )
     edit_count = db.Column( db.Integer )
+    #workaround for owner handle
+    @hybrid_property
+    def user(self):
+        return BlogzUser.query.filter_by( id = self.owner_id ).first().handle
     
     def __init__( self, owner, title, entry ):
         #self.user = user
@@ -147,7 +154,7 @@ def index( ):
     
     
     #get user list without pass_hash
-    view_users = BlogzUser.query.options(load_only("handle","email", "level", "count"))
+    view_users = BlogzUser.query.options(load_only("handle","email", "level"))
     
     #for i in view_users:
     #    i.count = len(i.posts)
@@ -179,7 +186,7 @@ def blog( ):
         except:
             intViewId = 0
         
-    print( strUserName )
+    #print( strUserName )
     if strUserName == None:
         if intViewId > 0:
             strNav += ' :: <a href="?id=' + strViewId + '">id=' + strViewId + '</a>'
@@ -202,9 +209,10 @@ def blog( ):
     #convert the dates to local server time
     #TODO get users local time?
     #if( len(view_entries) > 0 ):
+    #TODO get the (user) field to persist
     for i in view_entries:
         i.created = gh_getLocalTime(i.created)
-        i.user = BlogzUser.query.filter_by( id = i.owner_id ).first().handle
+        
         
     #TODO if no view entries then dont send ghEntries
  
@@ -460,7 +468,7 @@ def newpost( ):
         #if success
         owner = BlogzUser.query.filter_by(handle=session['handle']).first()
         new_post = BlogzEntry( owner, strTitle, strEntry )
-        owner.count = owner.count + 1
+#        owner.count = owner.count + 1
         db.session.add( new_post )
         db.session.commit()
 
