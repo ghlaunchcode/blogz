@@ -11,7 +11,6 @@ from sqlalchemy.orm import load_only
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask_bcrypt import Bcrypt
 
-
 import time
 from datetime import datetime
 import pytz
@@ -31,16 +30,16 @@ app = Flask( __name__ )
 app.config['DEBUG'] = ghDEBUG
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:3306/blogz'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ECHO' ] = False #ghDEBUG
+app.config['SQLALCHEMY_ECHO'] = False #ghDEBUG
 
 #for late-loading (comes from models.py)
 #db.init_app(app)
 db = SQLAlchemy( app )
 bcrypt = Bcrypt( app )
 
-app.secret_key = bcrypt.generate_password_hash( "mediumWicked" )
+app.secret_key = bcrypt.generate_password_hash( "mediumWicked" ).decode('utf-8')
 
-valid_session_key = bcrypt.generate_password_hash( "uservalid" )
+valid_session_key = bcrypt.generate_password_hash( "uservalid" ).decode('utf-8')
 
 # BLOGz User Model
 class BlogzUser( db.Model ):
@@ -320,7 +319,7 @@ class ValidateSignup:
                 self.errUserPass[i] += ERRSTR_LONG_FIELD_20
 
         # CHECK for MATCH
-        if strUserPass[0] != strUserPass[1]:
+        if self.strUserPass[0] != self.strUserPass[1]:
             isSuccess = False
             for i in range(len(self.strUserPass)):
                 self.ssUserPass[i] = ERRSTR_STATUS_ERROR
@@ -375,11 +374,11 @@ def signup( ):
 
         # Init Signup Validator
         vtor = ValidateSignup( request.form['inUserName'], request.form['inUserPass0'], request.form['inUserPass1'], request.form['inUserEmail'] )
-        isValid = vtor.isValid
+        isValid = vtor.isValid()
                 
-        if isSuccess:
+        if isValid:
             # default level is 1
-            new_user = BlogzUser( strUserName, strUserPass0, strUserEmail, 1 )
+            new_user = BlogzUser( vtor.strUserName, vtor.strUserPass[0], vtor.strUserEmail, 1 )
             db.session.add(new_user)
             db.session.commit()
             # TODO redirect to an interrim info page?
