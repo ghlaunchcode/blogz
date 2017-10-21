@@ -1,0 +1,8 @@
+#! /bin/bash
+
+#NOTE will NOT persist on errors
+
+echo "BLOGz Flask Server - SINGLE USE"
+source mega/bin/activate; python app.py
+echo "SERVER is SHUTDOWN"
+exit

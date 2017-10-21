@@ -12,12 +12,12 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from flask_bcrypt import Bcrypt
 
 
-#TODO force utc and timezone offset awareness
 import time
 from datetime import datetime
-#TimeZone and DST
 import pytz
 from tzlocal import get_localzone
+
+import os
 
 #from models import db, BlogzUser, BlogzEntry
 from gh_slogan import getSlogan
@@ -36,8 +36,8 @@ app.config['SQLALCHEMY_ECHO' ] = False #ghDEBUG
 #db.init_app(app)
 db = SQLAlchemy( app )
 bcrypt = Bcrypt( app )
-
-app.secret_key = bcrypt.generate_password_hash( 'wicked stylez' )
+asdl
+app.secret_key = bcrypt.generate_password_hash( "mediumWicked" )
 
 # BLOGz User Model
 class BlogzUser( db.Model ):

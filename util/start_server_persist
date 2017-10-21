@@ -1,0 +1,29 @@
+#! /bin/bash
+
+#NOTE will persist on errors
+
+echo 'BLOGz Flask Server - PERSISTENT'
+source mega/bin/activate
+while [[ 1 -eq 1 ]]
+do
+echo "STARTING Flask Server"
+#echo "  Press CTRL+C TWICE to QUIT"
+python app.py
+
+restcount=10
+echo -e "\nPERSIST SERVER:"
+echo -e "\tPress CTRL+C to END"
+echo -n "Restarting in "
+
+for((x=restcount;x>0;x--))
+do
+echo -n "${x}"
+if [[ x -gt 1 ]]
+then
+echo -n ","
+fi
+sleep 1
+done
+echo ""
+done
+exit
