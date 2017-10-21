@@ -46,14 +46,15 @@ class BlogzUser( db.Model ):
     email = db.Column( db.String( 255 ), unique = True )
     level = db.Column( db.Integer )
     posts = db.relationship("BlogzEntry", backref="owner")
-    #count = db.Column( db.Integer )
+    #workaround for posts enumeration
+    count = db.Column( db.Integer )
     
     def __init__( self, handle, password, email, level ):
         self.handle = handle
         self.pass_hash = bcrypt.generate_password_hash(password).decode('utf-8')
         self.email = email
         self.level = level
-        #self.count = 0
+        self.count = 0
 
 # BLOGz Entry Model
 class BlogzEntry( db.Model ):
@@ -146,10 +147,11 @@ def index( ):
     
     
     #get user list without pass_hash
-    view_users = BlogzUser.query.options(load_only("handle","email", "level"))
-        
-    if ghDEBUG:
-        print( view_users )
+    view_users = BlogzUser.query.options(load_only("handle","email", "level", "count"))
+    
+    #for i in view_users:
+    #    i.count = len(i.posts)
+    #    print( i.handle, "=", i.count )
     
     return render_template('index.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_HOME, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu),ghNav=Markup(strNav), ghErratae=Markup(strErratae), ghUsers=view_users)
 
@@ -458,6 +460,7 @@ def newpost( ):
         #if success
         owner = BlogzUser.query.filter_by(handle=session['handle']).first()
         new_post = BlogzEntry( owner, strTitle, strEntry )
+        owner.count = owner.count + 1
         db.session.add( new_post )
         db.session.commit()
 

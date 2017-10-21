@@ -7,7 +7,7 @@
 	{% else %}
 		{% for user in ghUsers %}
                 <li><h4><a href="blog?user={{user.handle}}">{{user.handle}}</a></h4>
-                ({{user.email}}) :: TODO posts</li>
+                ({{user.email}}) :: {{user.count}} posts</li>
 		{% endfor %}
 	{% endif %}
     </ul>
