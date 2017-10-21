@@ -2,13 +2,13 @@
 # Build A Blog
 # 2017, polarysekt
 
-## ENABLE/DISABLE Debugging ###
-ghDEBUG = True
-###############################
-
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+
+## ENABLE/DISABLE Debugging ###
+ghDEBUG = True
+###############################
 
 app = Flask( __name__ )
 app.config['DEBUG'] = ghDEBUG
