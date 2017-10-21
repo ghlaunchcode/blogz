@@ -21,6 +21,7 @@ import os
 
 #from models import db, BlogzUser, BlogzEntry
 from gh_slogan import getSlogan
+import gh_strings
 
 ## ENABLE/DISABLE Debugging ###
 ghDEBUG = True
@@ -38,6 +39,8 @@ db = SQLAlchemy( app )
 bcrypt = Bcrypt( app )
 
 app.secret_key = bcrypt.generate_password_hash( "mediumWicked" )
+
+valid_session_key = bcrypt.generate_password_hash( "uservalid" ).locale("utf-8")
 
 # BLOGz User Model
 class BlogzUser( db.Model ):
@@ -84,37 +87,30 @@ class BlogzEntry( db.Model ):
         self.created = self.modified = datetime.utcnow()
         self.edit_count = 0
 
-
-ghSITE_NAME = "BLOGz"
-ghPAGE_HOME = "home"
-ghPAGE_BLOG = "posts"
-ghPAGE_LOGIN = "login"
-ghPAGE_SIGNUP = "signup"
-ghPAGE_NEWPOST = "new post"
-
 # some utils
 def gh_getLocalTime( utc_dt ):
     loc_z = get_localzone()
     loc_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(loc_z)
     return loc_z.normalize(loc_dt)
 
-# Fun, but impractical
-def gh_getFetchInfo():
-    #utcTime = datetime.utcnow()
-    #return "UTC: " + str(utcTime) + "<br/>" + time.strftime("%Z") + ": " + str(gh_getLocalTime(utcTime))    
-    return ""
-
-# Build user panel
-def get_userdetails():
-    userdetails = []
-    if 'loglevel' in session:
-        userdetails.append( session['handle'] )
-        userdetails.append( '[<a href="logout">log out</a>]' )
+def get_fetch_info():
+    if ghDEBUG:
+        utcTime = datetime.utcnow()
+        return "UTC: " + str(utcTime) + "<br/>" + time.strftime("%Z") + ": " + str(gh_getLocalTime(utcTime))    
     else:
-        userdetails.append( request.remote_addr )
-        userdetails.append( '[<a href="login">login</a> | <a href="signup">signup</a>]' )
-    
-    return userdetails
+        return ""
+
+def get_current_user():
+    if valid_session_key in session:
+        return session['handle']
+    else:
+        return request.remote_addr
+
+def get_user_menu():
+    if valid_session_key in session:
+        return '[<a href="newpost">new post</a> | <a href="logout">log out</a>]'
+    else:
+        return '[<a href="login">log in</a> | <a href="signup">sign up</a>]'
 
 # Concise BLACKLIST / REDUNDANCY checking
 @app.before_request
@@ -123,7 +119,7 @@ def verify_user():
     
     #it's easier to do this here and now
     isAuthentic = False
-    if 'loglevel' in session:
+    if valid_session_key in session:
         if session['loglevel'] > 0:
             isAuthentic = True
     
@@ -139,58 +135,29 @@ def verify_user():
         if request.endpoint in redundant_routes:
             return redirect( "/", 302 )
 
-
-# ROUTE: '/' :: Main Site Index
-# open access
+# ROUTE: '/' :: Main Site Index : open access
 @app.route( "/" )
 def index( ):
-    strNav = '<a href="/">' + ghSITE_NAME + '</a>'
+    return render_template('index.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_HOME,ghSlogan=getSlogan(),ghUser_Name=get_current_user(), ghUser_Menu=Markup(get_user_menu()),ghNav=Markup(strNav_base),ghErratae=get_fetch_info(),ghUsers=BlogzUser.query.options(load_only("handle","email", "level")) )
 
-    strErratae = gh_getFetchInfo()
-    
-    userdetails = get_userdetails()
-    strSiteUserName = userdetails[0]
-    strSiteUserMenu = userdetails[1]
-    
-    
-    #get user list without pass_hash
-    view_users = BlogzUser.query.options(load_only("handle","email", "level"))
-        
-    return render_template('index.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_HOME, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu),ghNav=Markup(strNav), ghErratae=Markup(strErratae), ghUsers=view_users)
-
-# ROUTE: '/features' :: Feature List Page
-
-# ROUTE: '/blog' :: Blog View Page
-# open access
+# ROUTE: '/blog' :: Blog View Page : open access
 @app.route( "/blog" )
 def blog( ):
-    #TODO adjust nav string if different view (single, user)    
-    strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/blog">' + ghPAGE_BLOG + '</a>'
-    strErratae = gh_getFetchInfo()
-    userdetails = get_userdetails()
-    strSiteUserName = userdetails[0]
-    strSiteUserMenu = userdetails[1]
+    strNav = strNav_base + " :: " + '<a href="/blog">' + ghPAGE_BLOG + '</a>'
 
     # DETERMINE view TYPE
     strUserName = request.args.get('user')
     strViewId = request.args.get('id')
-    if strViewId == None:
-        intViewId = 0
-    else:
+
+    if strViewId:
         try:
             intViewId = int(strViewId)
         except:
             intViewId = 0
-        
-    #print( strUserName )
-    if strUserName == None:
-        if intViewId > 0:
-            strNav += ' :: <a href="?id=' + strViewId + '">id=' + strViewId + '</a>'
-            view_entries = BlogzEntry.query.filter_by(id=intViewId)
-        else:
-            strNav += ' :: <a href="blog">all</a>'
-            view_entries = BlogzEntry.query.all()
     else:
+        intViewId = 0
+    
+    if strUserName:
         #Get owner_id
         #TODO load_only?
         intOwnerId = BlogzUser.query.filter_by(handle=strUserName).first().id
@@ -200,97 +167,93 @@ def blog( ):
             view_entries = BlogzEntry.query.filter_by( owner_id=intOwnerId, id=intViewId )
         else:
             view_entries = BlogzEntry.query.filter_by( owner_id=intOwnerId )
-        
+    else:
+        if intViewId > 0:
+            strNav += ' :: <a href="?id=' + strViewId + '">id=' + strViewId + '</a>'
+            view_entries = BlogzEntry.query.filter_by(id=intViewId)
+        else:
+            strNav += ' :: <a href="blog">all</a>'
+            view_entries = BlogzEntry.query.all()
  
     #convert the dates to local server time
     #TODO get users local time?
     for i in view_entries:
         i.created = gh_getLocalTime(i.created)
-        
-        
-    #TODO if no view entries then dont send ghEntries
- 
-    return render_template('blog.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_BLOG, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), ghErratae=Markup(strErratae), ghEntries = view_entries)
+         
+    return render_template('blog.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_BLOG,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu),ghNav=Markup(strNav),ghErratae=get_fetch_info(),ghEntries=view_entries)
 
-# ROUTE '/login' :: User Login Page
-# blacklist = redundancy
+# ROUTE '/login' :: User Login Page : Redundancy Blacklist
 @app.route( "/login", methods=['POST', 'GET'] )
 def login( ):
-    strErrMsg = ""
+    strNav = strNav_base + " :: " + '<a href="/login">' + ghPAGE_LOGIN + '</a>' 
+
     strUserName = ""
-    
-    strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/login">' + ghPAGE_LOGIN + '</a>' 
-    #TODO get from session if possible
-    userdetails = get_userdetails()
-    strSiteUserName = userdetails[0]
-    strSiteUserMenu = userdetails[1]
-    strErratae = gh_getFetchInfo()
-    
+    strUserPass = ""
+
+    strerrUserName = ""
+    strerrUserPass = ""
+    ssUserName = ""
+    ssUserPass = ""
+
     if request.method == 'POST':
-        
+
         strUserName = request.form['inUserName']
         strUserPass = request.form['inUserPass']
         
-        rowUserEntry = BlogzUser.query.filter_by( handle = strUserName ).first()
+        # CHECK if BLANK User Name
+        if strUserName:
+            # CHECK if BLANK Password
+            if strUserPass:
+                # CHECK if FOUND
+                rowUserEntry = BlogzUser.query.filter_by( handle = strUserName ).first()
+                if rowUserEntry:
+                    # CHECK PASSWORD
+                    if bcrypt.check_password_hash( rowUserEntry.pass_hash, strUserPass ):
 
-        #CHECK IF FOUND
-        if rowUserEntry:
-            isValidUser = True
-        else:
-            isValidUser = False
-        
-        if isValidUser:
-            
-            isValidPassword = bcrypt.check_password_hash( rowUserEntry.pass_hash, strUserPass )
-                            
-            if isValidPassword:
-                # LOG IN
-                session['loglevel'] = rowUserEntry.level
-                session['handle'] = rowUserEntry.handle
-                
-                ##strTarget = request.args.get['target']
-                #if not target:
-                    #return redirect("/"+target, 302)
-                #else:
-                return redirect("/blog?user="+session['handle'], 302)
+                        # LOG IN
+                        #TODO: set the valid key to something random
+                        session[valid_session_key] = "legit"
+                        session['loglevel'] = rowUserEntry.level
+                        session['handle'] = rowUserEntry.handle
+                    
+                        ##strTarget = request.args.get['target']
+                        #if not target:
+                            #return redirect("/"+target, 302)
+                        #else:
+                        return redirect("/blog?user="+session['handle'], 302)
+
+                else:
+                    # FAILED USER CHECK
+                    ssUserName = ERRSTR_STATUS_ERROR
+                    strerrUserName = ERRSTR_USER_NOT_FOUND
             else:
-                strErrMsg = "Invalid Password Specified"
+                # FAILED BLANK PASS CHECK
+                ssUserName = ERRSTR_STATUS_ERROR
+                strerrUserName = ERRSTR_EMPTY_FIELD
         else:
-            strErrMsg = "Invalid User Specified"
-        
-    return render_template('login.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_LOGIN, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), vErrMsg=strErrMsg, vUserName=strUserName, ghErratae=Markup(strErratae) )
+            # FAILED BLANK USER CHECK
+            ssUserName = ERRSTR_STATUS_ERROR
+            strerrUserName = ERRSTR_EMPTY_FIELD
 
-# ROUTE '/logout' :: User Logout / End Session
-# blacklist = restricted
+            # CHECK PASSWORD (for full error report)
+            if not strUserPass:
+                ssUserPass = ERRSTR_STATUS_ERROR
+                strerrUserPass = ERRSTR_EMPTY_FIELD
+        
+    return render_template('login.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_LOGIN,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu()),ghNav=Markup(strNav),vUserName=strUserName,statusUserName=ssUserName,strerrUserName=strerrUserName,statusUserPass=ssUserPass,strerrUserPass=strerrUserPass,ghErratae=get_fetch_info() )
+
+# ROUTE '/logout' :: User Logout / End Session : Restricted Blacklist
 @app.route( "/logout" )
 def logout( ):
-    #TODO interrim logout screen
-    del session['handle']
-    del session['loglevel']
+    del session[ valid_session_key ]
     return redirect( "/", 302 )
-
-
-# Error Styling
-ERRSTR_STATUS_ERROR = "status-condition_ERROR"
-        
-# Various ERROR messages
-ERRSTR_EMPTY_FIELD = " Field is required!"
-ERRSTR_SHORT_FIELD_3 = " Field must be at least 3 characters!"
-ERRSTR_SHORT_FIELD_6 = " Field must be at least 6 characters!"
-ERRSTR_LONG_FIELD_20 = " Field must be shorter than 20 characters!"
-ERRSTR_LONG_FIELD_127 = " Field must be shorter than 127 characters!"
-ERRSTR_SPACES_FIELD = " Field must not contain spaces!"
-ERRSTR_MATCH_FIELD = " Fields must match!"
-ERRSTR_INVALID_EMAIL = " Field must contain valid email!"
-ERRSTR_USER_EXIST = " User already exists!"
-ERRSTR_EMAIL_EXIST = " Email is already in use!"
 
 class ValidateSignup:
 
     def __init__(self, strUserName, strUserPass0, strUserPass1, strUserEmail ):
         # For Form Data
         self.strUserName = strUserName
-        self.strUserPass = [ strUserPass1, strUserPass2 ]
+        self.strUserPass = [ strUserPass0, strUserPass1 ]
         self.strUserEmail = strUserEmail
         # For Errors
         self.errUserName = ""
@@ -396,17 +359,11 @@ class ValidateSignup:
 
         return isSuccess
 
-
-# ROUTE 'signup' :: User Signup -- separates POST / GET logic
-# blacklist = redundant
+# ROUTE 'signup' :: User Signup -- separates POST / GET logic : Redundant Blacklist
 @app.route( "/signup", methods=['POST','GET'] )
-def signup( ):   
+def signup( ):
     # BUILD nav string
-    strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/signup">' + ghPAGE_SIGNUP + '</a>'
-    userdetails = get_userdetails()
-    strSiteUserName = userdetails[0]
-    strSiteUserMenu = userdetails[1]
-    strErratae = gh_getFetchInfo()
+    strNav = strNav_base + " :: " + '<a href="/signup">' + ghPAGE_SIGNUP + '</a>'
     
     # POST condition
     if request.method == 'POST':
@@ -425,19 +382,14 @@ def signup( ):
             return redirect('login', 302)
 
         else:
-            return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), strUserName=vtor.strUserName, strUserEmail=vtor.strUserEmail, statusUserName=vtor.ssUserName, statusUserPass0=vtor.ssUserPass[0], statusUserPass1=vtor.ssUserPass[1], statusUserEmail=vtor.ssUserEmail, strerrUserName=vtor.errUserName, strerrUserPass0=vtor.errUserPass[0], strerrUserPass1=vtor.errUserPass[1], strerrUserEmail=vtor.errUserEmail, ghErratae=Markup(strErratae) )
+            return render_template('signup.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_SIGNUP,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu),ghNav=Markup(strNav),strUserName=vtor.strUserName,strUserEmail=vtor.strUserEmail,statusUserName=vtor.ssUserName,statusUserPass0=vtor.ssUserPass[0],statusUserPass1=vtor.ssUserPass[1],statusUserEmail=vtor.ssUserEmail,strerrUserName=vtor.errUserName,strerrUserPass0=vtor.errUserPass[0],strerrUserPass1=vtor.errUserPass[1],strerrUserEmail=vtor.errUserEmail,ghErratae=get_fetch_info() )
             
-    return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), ghErratae=Markup(strErratae) )
+    return render_template('signup.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_SIGNUP,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu()),ghNav=Markup(strNav),ghErratae=get_fetch_info() )
 
-# ROUTE "/newpost" :: Create a new blog entry
-# blacklist = restricted
+# ROUTE "/newpost" :: Create a new blog entry : blacklist = restricted
 @app.route( "/newpost", methods=['POST', 'GET'] )
 def newpost( ):
-    strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/blog">' + ghPAGE_NEWPOST + '</a>'
-    userdetails = get_userdetails()
-    strSiteUserName = userdetails[0]
-    strSiteUserMenu = userdetails[1]
-    strErratae = gh_getFetchInfo()
+    strNav = strNav_base + " :: " + '<a href="/blog">' + ghPAGE_NEWPOST + '</a>'
 
     #TODO verify reqs
     if request.method == 'POST':
@@ -457,7 +409,7 @@ def newpost( ):
             isSuccess = False
             
         if not isSuccess:
-            return render_template('newpost.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_NEWPOST, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), ghErratae=Markup(strErratae), vTitle=strTitle, vEntry=strEntry, strerrTitle=strerrTitle, strerrEntry=strerrEntry )
+            return render_template('newpost.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_NEWPOST,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu()),ghNav=Markup(strNav),ghErratae=get_fetch_info(), vTitle=strTitle, vEntry=strEntry, strerrTitle=strerrTitle, strerrEntry=strerrEntry )
         
         #if success
         owner = BlogzUser.query.filter_by(handle=session['handle']).first()
@@ -470,7 +422,7 @@ def newpost( ):
 
         return redirect('blog?id='+str(new_post.id), 302)
     
-    return render_template('newpost.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_NEWPOST, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), ghErratae=Markup(strErratae) )
+    return render_template('newpost.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_NEWPOST,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu),ghNav=Markup(strNav),ghErratae=get_fetch_info() )
 
 def main():
     app.run()
