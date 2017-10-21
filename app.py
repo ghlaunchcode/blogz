@@ -269,9 +269,133 @@ def logout( ):
     del session['loglevel']
     return redirect( "/", 302 )
 
-#TODO
-#def validate_signup( strUserName, strUserPass0, strUserPass1, strUserEmail):
-    #return True
+
+# Error Styling
+ERRSTR_STATUS_ERROR = "status-condition_ERROR"
+        
+# Various ERROR messages
+ERRSTR_EMPTY_FIELD = " Field is required!"
+ERRSTR_SHORT_FIELD_3 = " Field must be at least 3 characters!"
+ERRSTR_SHORT_FIELD_6 = " Field must be at least 6 characters!"
+ERRSTR_LONG_FIELD_20 = " Field must be shorter than 20 characters!"
+ERRSTR_LONG_FIELD_127 = " Field must be shorter than 127 characters!"
+ERRSTR_SPACES_FIELD = " Field must not contain spaces!"
+ERRSTR_MATCH_FIELD = " Fields must match!"
+ERRSTR_INVALID_EMAIL = " Field must contain valid email!"
+ERRSTR_USER_EXIST = " User already exists!"
+ERRSTR_EMAIL_EXIST = " Email is already in use!"
+
+class ValidateSignup:
+
+    def __init__(self, strUserName, strUserPass0, strUserPass1, strUserEmail ):
+        # For Form Data
+        self.strUserName = strUserName
+        self.strUserPass = [ strUserPass1, strUserPass2 ]
+        self.strUserEmail = strUserEmail
+        # For Errors
+        self.errUserName = ""
+        self.errUserPass = [ "", "" ]
+        self.errUserEmail = ""
+        # For Status Style
+        self.ssUserName = ""
+        self.ssUserPass = [ "", "" ]
+        self.ssUserEmail = ""
+
+    def isValid(self):
+        # Begin VALIDATION
+        isSuccess = True
+
+        # CHECK for EMPTY
+        if self.strUserName == "":
+            isSuccess = False
+            self.ssUserName = ERRSTR_STATUS_ERROR
+            self.errUserName += ERRSTR_EMPTY_FIELD
+
+        # CHECK for LENGTH
+        if len(self.strUserName) < 3:
+            isSuccess = False
+            self.ssUserName = ERRSTR_STATUS_ERROR
+            self.errUserName += ERRSTR_SHORT_FIELD_3
+
+        if len(self.strUserName) > 20:
+            isSuccess = False
+            self.ssUserName = ERRSTR_STATUS_ERROR
+            self.errUserName += ERRSTR_LONG_FIELD_20
+
+        # CHECK for SPACES (find returns -1 if not found)
+        if self.strUserName.find(" ") > -1:
+            isSuccess = False
+            self.ssUserName = ERRSTR_STATUS_ERROR
+            self.errUserName += ERRSTR_SPACES_FIELD
+
+        # CHECK for UNIQUE
+        if BlogzUser.query.filter_by( handle = self.strUserName ).options( load_only("handle") ).first() != None:
+            isSuccess = False
+            self.ssUserName = ERRSTR_STATUS_ERROR
+            self.errUserName += ERRSTR_USER_EXIST
+
+        for i in range(len(self.strUserPass)):
+            # CHECK for EMPTY
+            if self.strUserPass[i] == "":
+                isSuccess = False
+                self.ssUserPass[i] = ERRSTR_STATUS_ERROR
+                self.errUserPass[i] += ERRSTR_EMPTY_FIELD
+            
+            # CHECK for LENGTH
+            if len(self.strUserPass[i]) < 3:
+                isSuccess = False
+                self.ssUserPass[i] = ERRSTR_STATUS_ERROR
+                self.errUserPass[i] += ERRSTR_SHORT_FIELD_3
+
+            if len(self.strUserPass[i]) > 20:
+                isSuccess = False
+                self.ssUserPass[i] = ERRSTR_STATUS_ERROR
+                self.errUserPass[i] += ERRSTR_LONG_FIELD_20
+
+        # CHECK for MATCH
+        if strUserPass[0] != strUserPass[1]:
+            isSuccess = False
+            for i in range(len(self.strUserPass)):
+                self.ssUserPass[i] = ERRSTR_STATUS_ERROR
+                self.errUserPass[i] = ERRSTR_MATCH_FIELD
+
+        # CHECK for EMPTY
+        if self.strUserEmail == "":
+            isSuccess = False
+            self.ssUserEmail = ERRSTR_STATUS_ERROR
+            self.errUserEmail = ERRSTR_EMPTY_FIELD
+
+        # CHECK for SPACES (find returns -1 if not found)
+        if self.strUserEmail.find(" ") > -1:
+            isSuccess = False
+            self.ssUserEmail = ERRSTR_STATUS_ERROR
+            self.errUserEmail += ERRSTR_SPACES_FIELD
+            
+        # CHECK for @
+        if self.strUserEmail.find("@") == -1:
+            isSuccess = False
+            self.ssUserEmail = ERRSTR_STATUS_ERROR
+            self.errUserEmail += ERRSTR_INVALID_EMAIL
+
+        # Check for LENGTH
+        if len(self.strUserEmail) < 3:
+            isSuccess = False
+            self.ssUserEmail = ERRSTR_STATUS_ERROR
+            self.errUserEmail += ERRSTR_SHORT_FIELD_3
+
+        if len(self.strUserEmail) > 127:
+            isSuccess = False
+            self.ssUserEmail = ERRSTR_STATUS_ERROR
+            self.errUserEmail += ERRSTR_LONG_FIELD_127
+
+        # CHECK for UNIQUE
+        if BlogzUser.query.filter_by( handle = self.strUserName ).options( load_only("email") ).first() != None:
+            isSuccess = False
+            self.ssUserName = ERRSTR_STATUS_ERROR
+            self.errUserName += ERRSTR_EMAIL_EXIST
+
+        return isSuccess
+
 
 # ROUTE 'signup' :: User Signup -- separates POST / GET logic
 # blacklist = redundant
@@ -287,131 +411,22 @@ def signup( ):
     # POST condition
     if request.method == 'POST':
         #NOTE: error checking aggregates and falls through
-        
-        # Error Styling #TODO
-        ERRSTR_STATUS_ERROR = "status-condition_ERROR"
-        
-        # Various ERROR messages
-        ERRSTR_EMPTY_FIELD = " Field is required!"
-        ERRSTR_LENGTH_FIELD = " Field must be 3 to 20 characters!"
-        ERRSTR_SPACES_FIELD = " Field must not contain spaces!"
-        ERRSTR_MATCH_FIELD = " Fields must match!"
-        ERRSTR_INVALID_EMAIL = " Field must contain valid email!"
-        ERRSTR_LENGTH_EMAIL = " Field must be 3 to 127 characters!"
-        ERRSTR_USER_EXIST = " User already exists!"
 
-        # DECLARE / INIT form VARs
-        strUserName = ""
-        strUserPass0 = ""
-        strUserPass1 = ""
-        strUserEmail =""
-        strerrUserName = ""
-        strerrUserPass0 = ""
-        strerrUserPass1 = ""
-        strerrUserEmail = ""
-        statusUserName = ""
-        statusUserPass0 = ""
-        statusUserPass1 = ""
-        statusUserEmail = ""        
-        
-        # Obtain POSTed values
-        strUserName = request.form['inUserName']
-        strUserPass0 = request.form['inUserPass0']
-        strUserPass1 = request.form['inUserPass1']
-        strUserEmail = request.form['inUserEmail']
-        
-        # Set a success variable (optimistic)
-        isSuccess = True
-        
-        
-        # Begin VALIDATION
-        # CHECK for EMPTY
-        if strUserName == "":
-            isSuccess = False
-            statusUserName = ERRSTR_STATUS_ERROR
-            strerrUserName += ERRSTR_EMPTY_FIELD
-    
-        if strUserPass0 == "":
-            isSuccess = False
-            statusUserPass0 = ERRSTR_STATUS_ERROR
-            strerrUserPass0 += ERRSTR_EMPTY_FIELD
-            
-        if strUserPass1 == "":
-            isSuccess = False
-            statusUserPass1 = ERRSTR_STATUS_ERROR
-            strerrUserPass1 += ERRSTR_EMPTY_FIELD
-            
-        #NOTE: email is not required
-        
-        
-        if len(strUserName) < 3 or len(strUserName) > 20:
-            isSuccess = False
-            statusUserName = ERRSTR_STATUS_ERROR
-            strerrUserName += ERRSTR_LENGTH_FIELD
-
-        # CHECK for SPACES
-        # returns -1 if not found, else index
-        if strUserName.find(" ") > -1:
-            isSuccess = False
-            statusUserName = ERRSTR_STATUS_ERROR
-            strerrUserName += ERRSTR_SPACES_FIELD
-            
-        if len(strUserPass0) < 3 or len(strUserPass0) > 20:
-            isSuccess = False
-            statusUserPass0 = ERRSTR_STATUS_ERROR
-            strerrUserPass0 += ERRSTR_LENGTH_FIELD
-    
-        if len(strUserPass1) < 3 or len(strUserPass1) > 20:
-            isSuccess = False
-            statusUserPass1 = ERRSTR_STATUS_ERROR
-            strerrUserPass1 += ERRSTR_LENGTH_FIELD
-
-        if strUserPass0 != strUserPass1:
-            isSuccess = False
-            statusUserPass0 = ERRSTR_STATUS_ERROR
-            statusUserPass1 = ERRSTR_STATUS_ERROR
-            strerrUserPass0 += ERRSTR_LENGTH_FIELD
-            strerrUserPass1 += ERRSTR_LENGTH_FIELD
-
-        # Only parse if email provided
-        if strUserEmail != None:
-            # CHECK for SPACES
-            # returns -1 if not found, else index
-            if strUserEmail.find(" ") > -1:
-                isSuccess = False
-                statusUserEmail = ERRSTR_STATUS_ERROR
-                strerrUserEmail += ERRSTR_SPACES_FIELD
-            # Look for @ (ignore period)
-            if strUserEmail.find("@") == -1:
-                isSuccess = False
-                statusUserEmail = ERRSTR_STATUS_ERROR
-                strerrUserEmail += ERRSTR_INVALID_EMAIL
-            # Check length (higher bound for email)
-            if len(strUserEmail) < 3 or len(strUserEmail) > 127:
-                isSuccess = False
-                statusUserEmail = ERRSTR_STATUS_ERROR
-                strerrUserEmail += ERRSTR_LENGTH_EMAIL
-        
-        # only call db req if all else is good
+        # Init Signup Validator
+        vtor = ValidateSignup( request.form['inUserName'], request.form['inUserPass0'], request.form['inUserPass1'], request.form['inUserEmail'] )
+        isValid = vtor.isValid
+                
         if isSuccess:
-            user_hand = BlogzUser.query.filter_by( handle = strUserName ).options( load_only("handle") ).first()
+            # default level is 1
+            new_user = BlogzUser( strUserName, strUserPass0, strUserEmail, 1 )
+            db.session.add(new_user)
+            db.session.commit()
+            # TODO redirect to an interrim info page?
+            return redirect('login', 302)
 
-            if user_hand != None:
-                isSuccess = False
-                statusUserName = ERRSTR_STATUS_ERROR
-                strerrUserName += ERRSTR_USER_EXIST
-        
-        if not isSuccess:
-            return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), strUserName=strUserName, strUserEmail=strUserEmail, statusUserName=statusUserName, statusUserPass0=statusUserPass0, statusUserPass1=statusUserPass1, statusUserEmail=statusUserEmail, strerrUserName=strerrUserName, strerrUserPass0=strerrUserPass0, strerrUserPass1=strerrUserPass1, strerrUserEmail=strerrUserEmail, ghErratae=Markup(strErratae) )
-        
-        # fallthrough to commit new entry
-        # default level is 1 / count is 0 behind scenes
-        new_user = BlogzUser( strUserName, strUserPass0, strUserEmail, 1 )
-        db.session.add(new_user)
-        db.session.commit()
-        # TODO redirect to an interrim info page?
-        return redirect('login', 302)
-    
+        else:
+            return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), strUserName=vtor.strUserName, strUserEmail=vtor.strUserEmail, statusUserName=vtor.ssUserName, statusUserPass0=vtor.ssUserPass[0], statusUserPass1=vtor.ssUserPass[1], statusUserEmail=vtor.ssUserEmail, strerrUserName=vtor.errUserName, strerrUserPass0=vtor.errUserPass[0], strerrUserPass1=vtor.errUserPass[1], strerrUserEmail=vtor.errUserEmail, ghErratae=Markup(strErratae) )
+            
     return render_template('signup.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_SIGNUP, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), ghErratae=Markup(strErratae) )
 
 # ROUTE "/newpost" :: Create a new blog entry
