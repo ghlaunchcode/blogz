@@ -41,33 +41,35 @@ app.secret_key = bcrypt.generate_password_hash( 'wicked stylez' )
 # BLOGz User Model
 class BlogzUser( db.Model ):
     id = db.Column( db.Integer, primary_key = True )
-    handle = db.Column( db.String( 127 ) )
+    handle = db.Column( db.String( 127 ), unique = True )
     pass_hash = db.Column( db.String( 60 ) )
-    email = db.Column( db.String( 255 ) )
+    email = db.Column( db.String( 255 ), unique = True )
     level = db.Column( db.Integer )
-    count = db.Column( db.Integer )
+    posts = db.relationship("BlogzEntry", backref="owner")
+    #count = db.Column( db.Integer )
     
     def __init__( self, handle, password, email, level ):
         self.handle = handle
         self.pass_hash = bcrypt.generate_password_hash(password).decode('utf-8')
         self.email = email
         self.level = level
-        self.count = 0
+        #self.count = 0
 
 # BLOGz Entry Model
 class BlogzEntry( db.Model ):
     id = db.Column( db.Integer, primary_key = True )
     #TODO reference user by id
-    #user = db.Column( db.Integer )
-    user = db.Column( db.String(127) )
+    owner_id = db.Column( db.Integer, db.ForeignKey('blogz_user.id') )
+    #user = db.Column( db.String(127) )
     title = db.Column( db.String( 255 ) )
     entry = db.Column( db.Text )
     created = db.Column( db.DateTime )
     modified = db.Column( db.DateTime )
     edit_count = db.Column( db.Integer )
     
-    def __init__( self, user, title, entry ):
-        self.user = user
+    def __init__( self, owner, title, entry ):
+        #self.user = user
+        self.owner = owner
         self.title = title
         self.entry = entry
         #Stored as UTC, will render in SERVER local zone
@@ -88,9 +90,11 @@ def gh_getLocalTime( utc_dt ):
     loc_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(loc_z)
     return loc_z.normalize(loc_dt)
 
+# Fun, but impractical
 def gh_getFetchInfo():
-    utcTime = datetime.utcnow()
-    return "UTC: " + str(utcTime) + "<br/>" + time.strftime("%Z") + ": " + str(gh_getLocalTime(utcTime))    
+    #utcTime = datetime.utcnow()
+    #return "UTC: " + str(utcTime) + "<br/>" + time.strftime("%Z") + ": " + str(gh_getLocalTime(utcTime))    
+    return ""
 
 # Build user panel
 def get_userdetails():
@@ -142,7 +146,7 @@ def index( ):
     
     
     #get user list without pass_hash
-    view_users = BlogzUser.query.options(load_only("handle","email", "level", "count"))
+    view_users = BlogzUser.query.options(load_only("handle","email", "level"))
         
     if ghDEBUG:
         print( view_users )
@@ -182,12 +186,15 @@ def blog( ):
             strNav += ' :: <a href="blog">all</a>'
             view_entries = BlogzEntry.query.all()
     else:
+        #Get owner_id
+        #TODO load_only?
+        intOwnerId = BlogzUser.query.filter_by(handle=strUserName).first().id
         strNav += ' :: <a href="?user=' + strUserName + '">' + strUserName + "</a>"
         if intViewId > 0:
             strNav += ' & <a href="?id=' + strViewId + '">id=' + strViewId + '</a>'
-            view_entries = BlogzEntry.query.filter_by( user=strUserName, id=intViewId )
+            view_entries = BlogzEntry.query.filter_by( owner_id=intOwnerId, id=intViewId )
         else:
-            view_entries = BlogzEntry.query.filter_by( user=strUserName )
+            view_entries = BlogzEntry.query.filter_by( owner_id=intOwnerId )
         
  
     #convert the dates to local server time
@@ -195,6 +202,9 @@ def blog( ):
     #if( len(view_entries) > 0 ):
     for i in view_entries:
         i.created = gh_getLocalTime(i.created)
+        i.user = BlogzUser.query.filter_by( id = i.owner_id ).first().handle
+        
+    #TODO if no view entries then dont send ghEntries
  
     return render_template('blog.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_BLOG, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), ghErratae=Markup(strErratae), ghEntries = view_entries)
 
@@ -248,7 +258,7 @@ def login( ):
                 # LOG IN
                 session['loglevel'] = rowUserEntry.level
                 session['handle'] = rowUserEntry.handle
-                return redirect("/", 302)
+                return redirect("/blog?user="+session['handle'], 302)
             else:
                 #TODO invalid password message??
                 strErrMsg = "Invalid Password Specified"
@@ -263,6 +273,7 @@ def login( ):
 @app.route( "/logout" )
 def logout( ):
     #TODO interrim logout screen
+    del session['handle']
     del session['loglevel']
     return redirect( "/", 302 )
 
@@ -419,11 +430,40 @@ def signup( ):
 @app.route( "/newpost", methods=['POST', 'GET'] )
 def newpost( ):
     strNav = '<a href="/">' + ghSITE_NAME + '</a>' + " :: " + '<a href="/blog">' + ghPAGE_NEWPOST + '</a>'
-    #TODO get from session if possible
     userdetails = get_userdetails()
     strSiteUserName = userdetails[0]
     strSiteUserMenu = userdetails[1]
-    strErratae = gh_getFetchInfo()    
+    strErratae = gh_getFetchInfo()
+
+    #TODO verify reqs
+    if request.method == 'POST':
+        isSuccess = True
+        strerrTitle = ""
+        strerrEntry = ""
+        statusTitle = ""
+        statusEntry = ""
+        strTitle = request.form['inTitle']
+        strEntry = request.form['inEntry']
+        if( strTitle == "" ):
+            isSuccess = False
+            strerrTitle = "Post must contain a title"
+        
+        if( strEntry == "" ):
+            strerrEntry = "Post must contain an entry"
+            isSuccess = False
+            
+        if not isSuccess:
+            return render_template('newpost.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_NEWPOST, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), ghErratae=Markup(strErratae), vTitle=strTitle, vEntry=strEntry, strerrTitle=strerrTitle, strerrEntry=strerrEntry )
+        
+        #if success
+        owner = BlogzUser.query.filter_by(handle=session['handle']).first()
+        new_post = BlogzEntry( owner, strTitle, strEntry )
+        db.session.add( new_post )
+        db.session.commit()
+
+        #TODO update owner with new post
+
+        return redirect('blog?id='+str(new_post.id), 302)
     
     return render_template('newpost.html', ghSite_Name=ghSITE_NAME, ghPage_Title=ghPAGE_NEWPOST, ghSlogan=getSlogan(), ghUser_Name=strSiteUserName, ghUser_Menu=Markup(strSiteUserMenu), ghNav=Markup(strNav), ghErratae=Markup(strErratae) )
 

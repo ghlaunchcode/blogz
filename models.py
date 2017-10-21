@@ -21,12 +21,13 @@ def initDB():
     print( "  + CREATE USER root" )
     print( "    handle: root\n    pass: root\n    email: root@localhost\n    level: 7" )
     new_user = BlogzUser( "root", "root", "root@localhost", 7 )
-    new_user.count = 1
+    new_user = BlogzUser( "root", "root", "root@localhost", 7 )
+    #new_user.count = 1
     db.session.add( new_user )
     print( "  + COMMIT" )
     db.session.commit()
     print( "  + CREATE ENTRY welcome" )
-    new_entry = BlogzEntry( "root", "Welcome", "First!\nAnyways, welcome to 'the BLOGz'!" )
+    new_entry = BlogzEntry( new_user, "Welcome", "First!\nAnyways, welcome to 'the BLOGz'!" )
     db.session.add( new_entry )
     print( "  + COMMIT" )
     db.session.commit()

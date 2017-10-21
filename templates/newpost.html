@@ -24,13 +24,12 @@
     <form method="POST" action="newpost">
 	
         <p></p>
-        <label for="pt_in">Title</label>
-	
-        <div class="worry_user">{{pt_errmsg}}</div>
-        <input type="text" name="pt_in" value="{{post_title}}"></input>
-        <label for="pe_in">Entry</label>
-        <div class="worry_user">{{pe_errmsg}}</div>
-        <textarea name="pe_in">{{post_entry}}</textarea>
+        <label for="inTitle">Title</label>
+        <div class="worry_user">{{strerrTitle}}</div>
+        <input type="text" name="inTitle" value="{{vTitle}}"></input>
+        <label for="inEntry">Entry</label>
+        <div class="worry_user">{{strerrEntry}}</div>
+        <textarea name="inEntry">{{vEntry}}</textarea>
         <input type="submit"></input>
     </form>
 {% endblock %}
