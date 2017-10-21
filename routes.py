@@ -10,7 +10,7 @@ from sqlalchemy.orm import load_only
 from app import app, db, valid_session_key
 
 from models import BlogzUser, BlogzEntry
-from gh_strings import *
+from strings import *
 from helpers import *
 
 from gh_slogan import getSlogan

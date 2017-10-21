@@ -10,7 +10,7 @@ from sqlalchemy.orm import load_only
 
 from app import valid_session_key, ghDEBUG, bcrypt
 from models import BlogzUser
-from gh_strings import *
+from strings import *
 
 class ValidateSignup:
 
