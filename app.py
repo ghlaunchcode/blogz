@@ -16,10 +16,9 @@ app = Flask(__name__)
 app.config['DEBUG'] = ghDEBUG
 
 if isHeroku:
-    #postgresql://sotedygyjbbnwp:19eb3f2d2e21d3c02304912fc04b9dbe51144f5686f5a272a374f33db601b9d3@ec2-23-21-158-253.compute-1.amazonaws.com:5432/d392l7jnvv5tde
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:3306/blogz'    
-else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://sotedygyjbbnwp:19eb3f2d2e21d3c02304912fc04b9dbe51144f5686f5a272a374f33db601b9d3@ec2-23-21-158-253.compute-1.amazonaws.com:5432/d392l7jnvv5tde'
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:3306/blogz'    
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False #cghDEBUG
