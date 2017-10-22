@@ -7,6 +7,7 @@ ghPAGE_BLOG = "posts"
 ghPAGE_LOGIN = "login"
 ghPAGE_SIGNUP = "signup"
 ghPAGE_NEWPOST = "new post"
+ghPAGE_POKER = "poker"
 
 strNav_base = '<a href="/">' + ghSITE_NAME + '</a>'
 

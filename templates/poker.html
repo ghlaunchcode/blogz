@@ -1,0 +1,118 @@
+{% extends 'boilerplate.html' %}
+{% block content %}
+<style>
+	
+	/*
+	.pokerplayer, .pokercommunity, .playergame {
+		display: flex;
+		flex-direction: row;
+	}
+	*/
+/*	
+	html {
+		font-family: "Droid Sans", sans;
+	}
+*/	
+	#playercountform{
+		display: inline;
+	}
+
+	.playergame, .pokercommunity, .infoz {
+		display: flex;
+		flex-direction: row;
+		flex-flow:wrap;
+	}
+
+	.pokerplayer, .pokercommunity {
+		margin: .5em;
+	}
+	
+	
+	.playerlabel, .communitylabel, .talabel {
+		color: #009;
+		font-weight: bold;
+		/*font-size: 125%;*/
+	}
+	
+	.pokercard_black, .pokercard_red {
+		border: 1pt outset;
+		border-radius: .5em;
+		background-color: #fff;
+		padding-left: .2em;
+ 		width: 2.5em; 
+ 		height: 4em;
+
+ 		box-shadow: 1px 1px 4px rgba( 0, 0, 0, .3 );
+	}
+
+	.pokercommunity .pokercard_black, .pokercommunity .pokercard_red {
+		margin: .25em;
+	}
+
+	.cardoverlap {
+		margin-top: -3em;
+		margin-left: 1.5em;
+	}
+	
+	.pokercard_red {
+		color: #f00;
+	}
+	
+	textarea {
+ 		height: 14em;
+		width: 20em;
+		margin-right: 1em;
+	}
+</style>
+	<h3>Secret Poker :: </h3>
+	<!--<span>Texas Hold'em Hand Simulation</span>-->
+	<span class="pokerSetPlayers">
+        <form method="GET" action="poker" id="playercountform">
+			Player Count:
+			<select name="playercount" id="playercountselect" onclick="document.getElementById('playercountform').submit()">
+				<option value="1">1</option>
+				<option  value="2">2</option>
+				<option  value="3">3</option>
+				<option  value="4">4</option>
+				<option  value="5">5</option>
+				<option  value="6">6</option>
+				<option  value="7">7</option>
+				<option  value="8">8</option>
+				<option  value="9">9</option>
+				<option  value="10">10</option>
+			</select>
+			<!-- workaround for noscript browsing -->
+			<input type="submit" value="Deal"></input>
+        </form>
+	</span>
+
+	<script>
+        var parts = window.location.search.substr(1).split("&");
+        var $_GET = {};
+        for (var i = 0; i < parts.length; i++) {
+            var temp = parts[i].split("=");
+            $_GET[decodeURIComponent(temp[0])] = decodeURIComponent(temp[1]);
+        }
+
+		var countActual = 1;
+		if( $_GET['playercount'] ) {
+			var countTest = $_GET['playercount'];
+			
+
+				if( countTest > 0 ) {
+					if( countTest < 10 ) {
+						countActual = countTest;
+					} else {
+						countActual = 10;
+					}
+				} else {
+					countActual = 1;
+				}
+
+//			console.log( "setting value to ",countActual.toString() );
+			document.getElementById( "playercountselect" ).value = countActual;
+        }
+	</script>
+
+    {{ghPokerGame}}
+{% endblock %}
