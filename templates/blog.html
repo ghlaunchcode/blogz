@@ -38,11 +38,12 @@
         <div class="blogzEntry">
             <div class="blogzEntryTitle">
                 <h3><a href="?id={{entry.id}}">{{entry.title}}</a></h3>
-            </div>
-            <div class="blogzEntryAuthor"><a href="blog?user={{entry.user}}">{{entry.user}}</a>
                 {% if entry.user == session.handle %}
-                    <h6>[ &#x2710;edit | &#x2718;remove ]</h6>
+                    <h6>[ &#x2710;edit | <a href="removepost?id={{entry.id}}">&#x2718;remove</a> ]</h6>
                 {% endif %}
+            </div>
+            <div class="blogzEntryAuthor">
+                <a href="blog?user={{entry.user}}">{{entry.user}}</a>
             </div>
             <div class="blogzEntryContent">
                 {{entry.entry}}

@@ -210,10 +210,12 @@ main, .pageContent {
 
 .blogzEntryTitle {
 	background: rgba(64,64,64,.5);
-	color: #fff;
 	padding: .25em;
 	border-top-left-radius: .25em;
 	border-top-right-radius: .25em;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
 }
 
 .blogzEntryAuthor {
@@ -221,7 +223,7 @@ main, .pageContent {
 	padding-left: .25em;
 }
 
-.blogzEntryTitle a {
+.blogzEntryTitle h3 a {
 	color: #fff;
 }
 
@@ -235,7 +237,7 @@ main, .pageContent {
 }
 
 .blogzEntryCreated {
-	background: rgba(127,127,127,.5);
+	background: rgba(192,192,192,.5);
 	font-size: 75%;
 	color: #777;
 	text-align: right;

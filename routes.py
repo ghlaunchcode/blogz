@@ -51,6 +51,15 @@ def static_favicon():
 def static_style():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'style.css')
 
+@app.route("/gh_bbcode.js")
+def static_gh_bbcode():
+    return send_from_directory(os.path.join(app.root_path, 'static/script'), 'gh_bbcode.js')
+
+@app.route("/nvp.js")
+def static_nvp():
+    return send_from_directory(os.path.join(app.root_path, 'static/script'), 'nvp.js')
+
+
 # ROUTE: '/' :: Main Site Index : open access
 @app.route("/")
 def index():

@@ -1,9 +1,112 @@
 {% extends "boilerplate.html" %}
 {% block content %}
 
-test request var:
-{{request.endpoint}}
+<style>
+	.entryToolbar {
+		display: flex;
+		flex-direction: row;
 
-<br/>
+/*		justify-content: space-between; */
+	}
 
+	.entryToolbarButton {
+		border-width: 1pt;
+		border-style:groove;
+		
+		text-align: center;
+		width: 1em;
+		cursor:pointer;
+		margin: .25em;
+	}
+
+	.entryToolbarButton:hover {
+		border-style: outset;
+	}
+
+	.entryToolbarButton:active {
+		border-style: inset;
+	}
+
+	.mincap {
+		width: 20%;
+	}
+
+	.isDown {
+		border: 1pt;
+		!important border-style: inset;
+		background: #000;
+	}
+
+	.bbedit {
+		width: 80%;
+	}
+
+</style>
+
+<div class="entryToolbar">
+		<select >
+				<option value="bbcode">bbcode</option>
+				<option value="wysiwyg">wysiwyg</option>
+			</select>
+	
+	<div class="entryToolbarButton" onclick="doAddTags('[b]','[/b]','bbeditor_entry');"><b>B</b></div>
+	<div class="entryToolbarButton" onclick="doAddTags('[i]','[/i]','bbeditor_entry');"><em>I</em></div>
+	<div class="entryToolbarButton" onclick="doAddTags('[u]','[/u]','bbeditor_entry');"><u>U</u></div>
+	<div class="entryToolbarButton" onclick="doAddTags('[s]','[/s]','bbeditor_entry');"><s>S</s></div>
+	<div class="entryToolbarButton" onclick="doAddTags('[sub]','[/sub]','bbeditor_entry');">x<sub>n</sub></div>
+	<div class="entryToolbarButton" onclick="doAddTags('[sup]','[/sup]','bbeditor_entry');">x<sup>n</sup></div>
+
+</div>
+
+<textarea class="bbedit" id="bbeditor_entry">
+</textarea>
+<div class="wysiwyg">
+	
+</div>
+
+<script src=">
+	function doAddTags(tag1,tag2,obj)
+{
+textarea = document.getElementById(obj);
+	// Code for IE
+/*		if (document.selection) 
+			{
+				textarea.focus();
+				var sel = document.selection.createRange();
+				//alert(sel.text);
+				sel.text = tag1 + sel.text + tag2;
+			}
+   else 
+    {
+		*/  // Code for Mozilla Firefox
+		var len = textarea.value.length;
+	    var start = textarea.selectionStart;
+		var end = textarea.selectionEnd;
+		
+		
+		var scrollTop = textarea.scrollTop;
+		var scrollLeft = textarea.scrollLeft;
+
+		
+        var sel = textarea.value.substring(start, end);
+	    //alert(sel);
+		var rep = tag1 + sel + tag2;
+        textarea.value =  textarea.value.substring(0,start) + rep + textarea.value.substring(end,len);
+		
+		textarea.scrollTop = scrollTop;
+		textarea.scrollLeft = scrollLeft;
+		
+		
+	
+}
+</script>
+
+<script src="nvp.js">
+	pnvmaker = new ghPolyNav();
+	pnvmaker.sideLength = 20;
+	pnvmaker.attach();
+
+</script>
+
+{{ request.args}}
 {% endblock %}
