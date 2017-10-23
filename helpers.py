@@ -1,4 +1,6 @@
+""" Provides helpers functionality for BLOGz"""
 # helpers.py
+# 2017, Geoffrey Hadler
 
 import time
 from datetime import datetime

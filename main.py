@@ -1,3 +1,4 @@
+""" Entry point for BLOGz """
 # main.py
 
 from app import app

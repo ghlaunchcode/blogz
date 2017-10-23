@@ -10,8 +10,10 @@ html {
 	font-size: 12pt;
 }
 
+/*
 body {
 }
+*/
 
 /* bodyEncap :: 'virtual' body
 	+ 'top' anchor
@@ -40,8 +42,10 @@ h6 {
 	font-size: 75%;
 }
 
+/*
 header, footer {
 }
+*/
 
 a {
 	text-decoration: none;
@@ -95,9 +99,10 @@ header nav {
 	white-space: nowrap;
 }
 
-.navMain .navCurrent {
-	
+/*
+.navMain .navCurrent {	
 }
+*/
 
 .navMain a {
 	border-radius: .25em;
@@ -201,7 +206,6 @@ main, .pageContent {
 .createdDateTime{
 	font-size: 75%;
 	color: #777;
-	align: right;
 }
 
 input, textarea {

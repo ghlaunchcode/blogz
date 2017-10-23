@@ -1,4 +1,5 @@
-# gh_strings.py
+"""Provide strings used in BLOGz"""
+# strings.py
 
 # Site Navigational Strings
 ghSITE_NAME = "BLOGz"
@@ -13,7 +14,7 @@ strNav_base = '<a href="/">' + ghSITE_NAME + '</a>'
 
 # Error Styling
 ERRSTR_STATUS_ERROR = "status-condition_ERROR"
-        
+
 # Various ERROR messages
 ERRSTR_EMPTY_FIELD = " Field is required!"
 ERRSTR_SHORT_FIELD_3 = " Field must be at least 3 characters!"
