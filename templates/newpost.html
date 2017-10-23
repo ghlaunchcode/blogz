@@ -1,28 +1,7 @@
 {% extends 'boilerplate.html' %}
 {% block content %}
-<style>
-
-	
-	input, textarea {
-		display: block;
-	}
-	
-	textarea {
-        width: 100%;
-        height: 25em;
-	}
-	
-	.worry_user {
-		color: #f00;
-	}
-</style>
-<!-- NOTE: 
-	changed span to BLOCK element for newline 
-	added style to input / textarea
-	-->
 	<h3>Post Editor</h3>
     <form method="POST" action="newpost">
-	
         <p></p>
         <label for="inTitle">Title</label>
         <div class="worry_user">{{strerrTitle}}</div>

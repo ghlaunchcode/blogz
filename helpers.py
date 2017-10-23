@@ -143,6 +143,6 @@ def get_current_user():
 
 def get_user_menu():
     if valid_session_key in session:
-        return '[<a href="newpost">new post</a> | <a href="logout">log out</a>]'
+        return '[<a href="newpost">new post</a> | <a href="logout">logout</a>]'
     else:
-        return '[<a href="login">log in</a> | <a href="signup">sign up</a>]'
+        return '[<a href="login">login</a> | <a href="signup">register</a>]'

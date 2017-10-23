@@ -9,226 +9,30 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<!-- TODO: the shortcut icon GET request returns a 404 -->
 		<!-- <link href="shortcut icon" href="{{url_for('static', filename='favicon.ico') }}" /> -->
+		<link href="style.css" rel="stylesheet"/>
 		<link href="https://fonts.googleapis.com/css?family=Sedgwick+Ave|Pacifico|Open+Sans+Condensed|Nunito|Libre+Barcode+39+Text|Monoton|Oswald|Righteous|Source+Code+Pro" rel="stylesheet">
-
-		<!-- TODO: enable for production -->
-		<!-- <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}"\> -->
-		<title>{{ghSite_Name}}::{{ghPage_Title}}</title>
-		<!-- TODO: move to style file? -->
-		<!-- TODO: consolidate here, first -->
-		<style>
-			html {
-/* 				background: url("") */
-				background-color: #555;
-				font-family: Oswald, sans-serif;
-				font-size: 12pt;
-			}
-			
-			body {
-			}
-			
-			/* bodyEncap is the 'virtual' body
-			   + 'top' anchor
-			   + copyright
-			   + erratae
-			 */
-			.bodyEncap {
-				background-color: rgba(255,255,255,.8);
-				padding-top: .5em;
-				padding-left: .5em;
-				padding-right: .5em;
-/*                 background-color: #fff; */
-				border-radius: .25em;
-			}
-			
-			h1, h2, h3, h4 {
-				margin: 0;
-				padding: 0;
-			}
-
-			/* h2 is NOT inline... */
-			h1, h3, h4 {
-				display: inline;
-			}
-            
-			h2 {
-/* 				font-family: Righteous; */
-			}
-			
-			header, footer {
-			}
-			
-			a {
-				text-decoration: none;
-			}
-			
-			a:hover {
-				text-decoration: underline;
-			}
-			
-			form {
-				padding: .25em;
-			}
-
-			header h1 {
-				font-family: "Sedgwick Ave";
-				text-shadow: 2px 2px 2px #ccc;
-				color: #009;
-			}
-
-			header p {
-				color: #555;
-				font-family: Nunito;
-				margin-left: 1em;
-				
-			}
-			header nav {
-				text-align: right;
-			}
-			
-			.slogan {
-			color: #777;
-				font-family: Pacifico;
-				font-size: .75em;
-				padding: .5em;
-			}
-			
-			.flexLine {
-				display: flex;
-				flex-direction: row;
-				align-items: left;
-				align-content: center;
-				justify-content: space-between;
-				width: 100%;			
-			}
-			
-			
-			.navMain {
-				width: 100%;
-				font-size: 125%;
-				font-weight: bold;
-/* 				margin-left: .25em; */
-				white-space: nowrap;
-			}
-			
-			.navMain a {
-				border-radius: .25em;
-				padding: .25em;
-				
-			}
-			
-			.navMain a:hover {
-				background-color: #000;
-				color: #fff;
-				text-decoration: none;
-			}
-			
-			.navUser {
-				font-size: .8em;
-			}
-			
-			footer nav {
-				text-align: center;
-			}
-			
-			.ghCopyright {
-				color: #999;
-/* 				font-style: italic; */
-				font-size: 75%;
-				text-align: right;
-			}
-			
-			main, .pageContent {
-				padding: .25em;
-/*                margin-left: .5em;
-                margin-right: .5em;
-*/
-			}
-			
-			.inField {
-            width: 100%;
-            display:flex;
-            flex-direction: row;
-            align-items: center;
-            border-radius: .5em;
-        }
-
-			.status-condition_ERROR input {
-            	background-image: -webkit-linear-gradient(top, rgba(255,0,0,255), rgba(255,0,0,.2));
-            	background-image: -moz-linear-gradient(top, rgba(255,0,0,255), rgba(255,0,0,.2));
-            	background-image: linear-gradient(to bottom, rgba(255,0,0,255), rgba(255,0,0,.2));
-        	}
-			.msgError {
-            font-style: italic;
-            text-align: left;
-        }
-
-
-        .lineIcon {
-            font-weight: bold;
-            font-size: 200%;
-            color: #f00;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        .lineIcon {
-            visibility: hidden;
-        }
-        .status-condition_ERROR .lineIcon {
-            visibility: visible;
-        }
-
-            /* The following is only for poker			
-			.cardRed {
-				color: #f00;
-			}
-
-
-			.ghPokerTable {
-                padding: 2em;
-                background: #090;
-                border: 2pt ridge;
-                border-radius: 1em;
-			}
-			
-			.ghPokerCard {
-                background: #ccc;
-                border: 2pt outset;
-                border-radius: .5em;
-                width: 100px;
-*/
-
-.titleArea {
-                white-space: nowrap;
-}
-
-.titleArea nav {
-                display: inline;
-
-            }
-            
-            .ghErratae {
-                font-size: 50%;
-                font-family: "Source Code Pro";
-                text-align: right;
-/*                 border: 2pt ridge; */
-/*                 border-radius: .25em; */
-            }
-    }
-
-		</style>
+		<title>BLOGz::{{ghPage_Title}}</title>
     </head>
     <body>
+		<!-- ANCHOR for #top link -->
         <a name="top"></a>
         <div class="bodyEncap">
             <header>
                 <div class="flexLine">
                     <div class="titleArea">
-                        <h1>{{ghSite_Name}}</h1>
+                        <h1>BLOGz</h1>
                         <nav class="navMain">
                             <!-- TODO:: current page as selected 'tab' -->
-                            <a href="/">&#x21E7;home</a>&nbsp;<a href="blog">&#x269E;posts</a>
+                            {% if ghPage_Title == "home" %}
+                                <span class="navCurrent">&#x21E7;home</span>
+                            {% else %}
+                                <a href="/">&#x21E7;home</a>
+                            {% endif %}
+                            {% if ghPage_Title == "posts" %}
+                                <span class="navCurrent">&#x269E;posts</span>
+                            {% else %}
+                                <a href="blog">&#x269E;posts</a>
+                            {% endif %}
                         </nav>
                         <div>
                             <h2>{{ghPage_Title}}</h2>
@@ -240,12 +44,12 @@
                     <div class="slogan">{{ghSlogan}}</div>
                     <nav class="navUser">
                         <!-- TODO: customize based on user session -->
-                        User: {{ghUser_Name}} &nbsp; {{ghUser_Menu}}
-                        
-                        <!-- TODO user jinja for this -->
-                        <!--[<a href="logout">logout</a>]<br/>
-                        [ <a href="signup">signup</a> | <a href="login">login</a>  ]<br/>
-                        [ <a href="newpost">&#x270E;new post</a> ]  -->
+                        <div>User: {{ghUser_Name}}</div>
+                        {% if session.loglevel %}
+                            [<a href="newpost">&#x270E;new post</a> | <a href="logout">logout</a>]
+                        {% else %}
+                            [<a href="login">login</a> | <a href="signup">register</a>]
+                        {% endif %}
                     </nav>
                 </div>
             </header>

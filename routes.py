@@ -42,13 +42,21 @@ def verify_user():
 
 # Provide a favicon.ico (compatible)
 @app.route( "/favicon.ico" )
-def favicon():
+def static_favicon():
     return send_from_directory( os.path.join(app.root_path, 'static'), 'favicon.ico' )
+
+# Provide style.css
+@app.route( "/style.css" )
+def static_style():
+    return send_from_directory( os.path.join(app.root_path, 'static'), 'style.css')
 
 # ROUTE: '/' :: Main Site Index : open access
 @app.route( "/" )
 def index( ):
-    return render_template('index.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_HOME,ghSlogan=getSlogan(),ghUser_Name=get_current_user(), ghUser_Menu=Markup(get_user_menu()),ghNav=Markup(strNav_base),ghErratae=get_fetch_info(),ghUsers=BlogzUser.query.options(load_only("handle","email", "level")) )
+
+    view_users = BlogzUser.query.options(load_only("handle","email","level"))
+
+    return render_template('index.html',ghPage_Title=ghPAGE_HOME,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghNav=Markup(strNav_base),ghErratae=Markup(get_fetch_info()),ghUsers=view_users )
 
 # ROUTE: '/blog' :: Blog View Page : open access
 @app.route( "/blog" )
@@ -94,7 +102,7 @@ def blog( ):
     for i in view_entries:
         i.created = gh_getLocalTime(i.created)
          
-    return render_template('blog.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_BLOG,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu()),ghNav=Markup(strNav),ghErratae=get_fetch_info(),ghEntries=view_entries)
+    return render_template('blog.html',ghPage_Title=ghPAGE_BLOG,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghNav=Markup(strNav),ghErratae=Markup(get_fetch_info()),ghEntries=view_entries)
 
 # ROUTE '/login' :: User Login Page : Redundancy Blacklist
 @app.route( "/login", methods=['POST', 'GET'] )
@@ -158,14 +166,14 @@ def login( ):
                 ssUserPass = ERRSTR_STATUS_ERROR
                 strerrUserPass = ERRSTR_EMPTY_FIELD
         
-    return render_template('login.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_LOGIN,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu()),ghNav=Markup(strNav),vUserName=strUserName,statusUserName=ssUserName,strerrUserName=strerrUserName,statusUserPass=ssUserPass,strerrUserPass=strerrUserPass,ghErratae=get_fetch_info() )
+    return render_template('login.html',ghPage_Title=ghPAGE_LOGIN,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghNav=Markup(strNav),vUserName=strUserName,statusUserName=ssUserName,strerrUserName=strerrUserName,statusUserPass=ssUserPass,strerrUserPass=strerrUserPass,ghErratae=Markup(get_fetch_info()) )
 
 # ROUTE '/logout' :: User Logout / End Session : Restricted Blacklist
 @app.route( "/logout" )
 def logout( ):
     del session[ valid_session_key ]
+    del session[ 'loglevel' ]
     return redirect( "/", 302 )
-
 
 # ROUTE 'signup' :: User Signup -- separates POST / GET logic : Redundant Blacklist
 @app.route( "/signup", methods=['POST','GET'] )
@@ -190,9 +198,9 @@ def signup( ):
             return redirect('login', 302)
 
         else:
-            return render_template('signup.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_SIGNUP,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu),ghNav=Markup(strNav),strUserName=vtor.strUserName,strUserEmail=vtor.strUserEmail,statusUserName=vtor.ssUserName,statusUserPass0=vtor.ssUserPass[0],statusUserPass1=vtor.ssUserPass[1],statusUserEmail=vtor.ssUserEmail,strerrUserName=vtor.errUserName,strerrUserPass0=vtor.errUserPass[0],strerrUserPass1=vtor.errUserPass[1],strerrUserEmail=vtor.errUserEmail,ghErratae=get_fetch_info() )
+            return render_template('signup.html',ghPage_Title=ghPAGE_SIGNUP,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghNav=Markup(strNav),strUserName=vtor.strUserName,strUserEmail=vtor.strUserEmail,statusUserName=vtor.ssUserName,statusUserPass0=vtor.ssUserPass[0],statusUserPass1=vtor.ssUserPass[1],statusUserEmail=vtor.ssUserEmail,strerrUserName=vtor.errUserName,strerrUserPass0=vtor.errUserPass[0],strerrUserPass1=vtor.errUserPass[1],strerrUserEmail=vtor.errUserEmail,ghErratae=Markup(get_fetch_info()) )
             
-    return render_template('signup.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_SIGNUP,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu()),ghNav=Markup(strNav),ghErratae=get_fetch_info() )
+    return render_template('signup.html',ghPage_Title=ghPAGE_SIGNUP,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu()),ghNav=Markup(strNav),ghErratae=Markup(get_fetch_info()) )
 
 # ROUTE "/newpost" :: Create a new blog entry : Restricted Blacklist
 @app.route( "/newpost", methods=['POST', 'GET'] )
@@ -229,7 +237,7 @@ def newpost( ):
 
         return redirect('blog?id='+str(new_post.id), 302)
     
-    return render_template('newpost.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_NEWPOST,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu),ghNav=Markup(strNav),ghErratae=get_fetch_info() )
+    return render_template('newpost.html',ghPage_Title=ghPAGE_NEWPOST,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghNav=Markup(strNav),ghErratae=Markup(get_fetch_info()) )
 
 # ROUTE "/poker" is EASTER EGG
 @app.route( "/poker" )
@@ -253,4 +261,4 @@ def poker():
 
     strNav += " :: " + str(intPlayers) + " Players"
 
-    return render_template('poker.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_POKER,ghSlogan=getSlogan(),ghUser_Name=get_current_user(), ghUser_Menu=Markup(get_user_menu()),ghNav=Markup(strNav),ghPokerGame=Markup(get_demo(intPlayers)),ghPokerNumPlayers=intPlayers,ghErratae=get_fetch_info())
+    return render_template('poker.html',ghPage_Title=ghPAGE_POKER,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghNav=Markup(strNav),ghPokerGame=Markup(get_demo(intPlayers)),ghPokerNumPlayers=intPlayers,ghErratae=Markup(get_fetch_info()))
