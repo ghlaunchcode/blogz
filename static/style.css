@@ -79,7 +79,8 @@ header nav {
 .slogan {
 	color: #777;
 	font-family: Pacifico;
-	font-size: .50em;
+	font-size: 75%;
+	text-align: right;
 	padding: .5em;
 }
 
@@ -185,27 +186,62 @@ main, .pageContent {
 }
 
 
-.ghBlogView {
+
+/* blog page specific 
+ **********************/
+
+.blogzView {
 	border-radius: .25em;
-/*             background: #ccc; */
-	padding: .25em;
-/* 			border: 2pt inset; */
-/* 			border-radius: .25em; */
-}
-.ghBlogEntry {
-/*             background: #fff; */
-	border: 1px ridge;
-	border-radius: .5em;
-	padding: .5em;	
-	margin-bottom: 1em;
-}
-.ghBlogEntry p {
-	font-family: "Century Schoolbook", "Century", "Times New Roman", Times, serif;
+/*	padding: .25em; */
 }
 
-.createdDateTime{
+
+.blogzEntry {
+	border: 1px ridge;
+	border-radius: .5em;
+	margin-bottom: 1em;
+}
+
+/*
+.blogzEntryContent, .blogzEntryTitle, .blogzEntryCreated {
+	width: 100%;
+}
+*/
+
+.blogzEntryTitle {
+	background: rgba(64,64,64,.5);
+	color: #fff;
+	padding: .25em;
+	border-top-left-radius: .25em;
+	border-top-right-radius: .25em;
+}
+
+.blogzEntryAuthor {
+	background: rgba(127,127,127,.5);
+	padding-left: .25em;
+}
+
+.blogzEntryTitle a {
+	color: #fff;
+}
+
+.blogzEntryAuthor a {
+
+}
+
+.blogzEntryContent {
+	font-family: "Century Schoolbook", "Century", "Times New Roman", Times, serif;
+	padding: .25em;
+}
+
+.blogzEntryCreated {
+	background: rgba(127,127,127,.5);
 	font-size: 75%;
 	color: #777;
+	text-align: right;
+	padding: .25em;
+	border-bottom-left-radius: .25em;
+	border-bottom-right-radius: .25em;
 }
 
 input, textarea {

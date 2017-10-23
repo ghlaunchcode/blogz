@@ -33,17 +33,21 @@
         }
 	</script>
 -->	
-	<div class="ghBlogView">
+	<div class="blogzView">
     {% for entry in ghEntries %}
-        <div class="ghBlogEntry">
-            <h3><a href="?id={{entry.id}}">{{entry.title}}</a></h3>
-            <div><a href="blog?user={{entry.user}}">{{entry.user}}</a>
+        <div class="blogzEntry">
+            <div class="blogzEntryTitle">
+                <h3><a href="?id={{entry.id}}">{{entry.title}}</a></h3>
+            </div>
+            <div class="blogzEntryAuthor"><a href="blog?user={{entry.user}}">{{entry.user}}</a>
                 {% if entry.user == session.handle %}
                     <h6>[ &#x2710;edit | &#x2718;remove ]</h6>
                 {% endif %}
             </div>
-            <p>{{entry.entry}}</p>
-            <div class="createdDateTime">{{entry.created}}</div>
+            <div class="blogzEntryContent">
+                {{entry.entry}}
+            </div>
+            <div class="blogzEntryCreated">{{entry.created}}</div>
 		</div>
     {% else %}
         <p>No entries to show.</p>

@@ -263,3 +263,7 @@ def poker():
     strNav += " :: " + str(intPlayers) + " Players"
 
     return render_template('poker.html', ghPage_Title=ghPAGE_POKER, ghSlogan=Markup(getSlogan()), ghUser_Name=get_current_user(), ghNav=Markup(strNav), ghPokerGame=Markup(get_demo(intPlayers)), ghPokerNumPlayers=intPlayers, ghErratae=Markup(get_fetch_info()))
+
+@app.route("/test")
+def route_test():
+    return render_template('test.html')
