@@ -14,6 +14,7 @@ from strings import *
 from helpers import *
 
 from gh_slogan import getSlogan
+from gh_poker import get_demo
 
 
 # Concise BLACKLIST / REDUNDANCY checking
@@ -229,3 +230,27 @@ def newpost( ):
         return redirect('blog?id='+str(new_post.id), 302)
     
     return render_template('newpost.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_NEWPOST,ghSlogan=getSlogan(),ghUser_Name=get_current_user(),ghUser_Menu=Markup(get_user_menu),ghNav=Markup(strNav),ghErratae=get_fetch_info() )
+
+# ROUTE "/poker" is EASTER EGG
+@app.route( "/poker" )
+def poker():
+    strNav = strNav_base + " :: "  + '<a href="/poker">' + ghPAGE_POKER + '</a>'
+    intPlayers = 1
+
+    strPlayers = request.args.get('playercount')
+
+    if strPlayers:
+        try:
+            intPlayers = int(strPlayers)
+        except:
+            intPlayers = 1
+
+        if intPlayers > 10:
+            intPlayers = 10
+        
+        if intPlayers < 1:
+            intPlayers = 1
+
+    strNav += " :: " + str(intPlayers) + " Players"
+
+    return render_template('poker.html',ghSite_Name=ghSITE_NAME,ghPage_Title=ghPAGE_POKER,ghSlogan=getSlogan(),ghUser_Name=get_current_user(), ghUser_Menu=Markup(get_user_menu()),ghNav=Markup(strNav),ghPokerGame=Markup(get_demo(intPlayers)),ghPokerNumPlayers=intPlayers,ghErratae=get_fetch_info())
