@@ -92,13 +92,13 @@ def blog():
             intOwnerId = 0
         strNav += ' :: <a href="?user=' + strUserName + '">' + strUserName + "</a>"
         if intViewId > 0:
-            strNav += ' & <a href="?id=' + strViewId + '">id=' + strViewId + '</a>'
+            strNav += ' & <a href="?id=' + str(intViewId) + '">id=' + str(intViewId) + '</a>'
             view_entries = BlogzEntry.query.filter_by(owner_id=intOwnerId, id=intViewId).paginate(page,intLimit)
         else:
             view_entries = BlogzEntry.query.filter_by(owner_id=intOwnerId).paginate(page,intLimit)
     else:
         if intViewId > 0:
-            strNav += ' :: <a href="?id=' + strViewId + '">id=' + strViewId + '</a>'
+            strNav += ' :: <a href="?id=' + str(intViewId) + '">id=' + str(intViewId) + '</a>'
             view_entries = BlogzEntry.query.filter_by(id=intViewId).paginate(page,intLimit)
         else:
             strNav += ' :: <a href="blog">all</a>'

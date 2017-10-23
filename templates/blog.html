@@ -46,21 +46,21 @@
         <div class="paginateNav">
             [
             {% if ghEntries.has_prev  %}
-                <a href="{{url_for('blog', page=ghEntries.prev_num, limit=limit)}}">prev</a>
+                <a href="{{url_for('blog', page=ghEntries.prev_num, limit=limit, user=user, id=id)}}">prev</a>
             {% else %}
                 prev
             {% endif %}
             (
             {% for page in ghEntries.iter_pages() %}
                 {% if page != ghEntries.page %}
-                    <a href="{{url_for('blog', page=page, limit=limit)}}">{{ page }}</a>
+                    <a href="{{url_for('blog', page=page, limit=limit, user=user, id=id)}}">{{ page }}</a>
                 {% else %}
                     {{ page }} 
                 {% endif %}
             {% endfor %}
             )
             {% if ghEntries.has_next %}
-                <a href="{{url_for('blog', page=ghEntries.next_num, limit=limit)}}">next</a>
+                <a href="{{url_for('blog', page=ghEntries.next_num, limit=limit, user=user, id=id)}}">next</a>
             {% else %}
                 next
             {% endif %}
@@ -69,13 +69,15 @@
     {% for entry in ghEntries.items %}
         <div class="blogzEntry">
             <div class="blogzEntryTitle">
-                <h3><a href="?id={{entry.id}}">{{entry.title}}</a></h3>
+                <h3>
+					<a href="{{ url_for('blog', id=entry.id, limit=limit)}}">{{entry.title}}</a>
+				</h3>
                 {% if entry.user == session.handle %}
                     <h6>[ &#x2710;edit | <a href="removepost?id={{entry.id}}">&#x2718;remove</a> ]</h6>
                 {% endif %}
             </div>
             <div class="blogzEntryAuthor">
-                <a href="blog?user={{entry.user}}">{{entry.user}}</a>
+                <a href="{{url_for( 'blog', user=entry.user, limit=limit)}}">{{entry.user}}</a>
             </div>
             <div class="blogzEntryContent">
                 {{entry.entry}}
