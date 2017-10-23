@@ -1,58 +1,5 @@
 {% extends 'boilerplate.html' %}
 {% block content %}
-<style>
-
-	#playercountform{
-		display: inline;
-	}
-
-	.playergame, .pokercommunity, .infoz {
-		display: flex;
-		flex-direction: row;
-		flex-flow:wrap;
-	}
-
-	.pokerplayer, .pokercommunity {
-		margin: .5em;
-	}
-	
-	
-	.playerlabel, .communitylabel, .talabel {
-		color: #009;
-		font-weight: bold;
-		/*font-size: 125%;*/
-	}
-	
-	.pokercard_black, .pokercard_red {
-		border: 1pt outset;
-		border-radius: .5em;
-		background-color: #fff;
-		padding-left: .2em;
- 		width: 2.5em; 
- 		height: 4em;
-
- 		box-shadow: 1px 1px 4px rgba( 0, 0, 0, .3 );
-	}
-
-	.pokercommunity .pokercard_black, .pokercommunity .pokercard_red {
-		margin: .25em;
-	}
-
-	.cardoverlap {
-		margin-top: -3em;
-		margin-left: 1.5em;
-	}
-	
-	.pokercard_red {
-		color: #f00;
-	}
-	
-	textarea {
- 		height: 14em;
-		width: 20em;
-		margin-right: 1em;
-	}
-</style>
 	<h3>Secret Poker :: </h3>
 	<!--<span>Texas Hold'em Hand Simulation</span>-->
 	<span class="pokerSetPlayers">
