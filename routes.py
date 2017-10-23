@@ -1,3 +1,4 @@
+"""Provide routes for BLOGz"""
 # routes.py
 # Build A Blog :: routes
 # 2017, polarysekt
