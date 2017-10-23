@@ -1,21 +1,7 @@
 {% extends "boilerplate.html" %}
-
 {% block content %}
-<section name="content">
-    <!-- style nearby as reminder -->
-    <style>
-
-        label {
-            padding: .25em;
-            font-weight: bold;
-            text-align: right;
-            width: 16ch;
-        }
-
-    </style>
-
-        <h3>Register New User</h3>
-        <p>All fields are required.</p>
+    <h3>Register New User</h3>
+    <p>All fields are required.</p>
 
     <form action="signup" method="POST">
         <div class="inField {{statusUserName}}">
@@ -54,5 +40,4 @@
             <input type="submit" value="Register"/>
         </div>
     </form>
-</section>
 {% endblock %}

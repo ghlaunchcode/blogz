@@ -6,7 +6,7 @@ echo "BLOGz Flask Server - SINGLE USE"
 if [[ -d util ]]
 then
 source mega/bin/activate
-python app.py
+python main.py
 echo "SERVER is SHUTDOWN"
 exit
 else

@@ -1,41 +1,11 @@
 {% extends 'boilerplate.html' %}
 
 {% block content %}
-	<style>
-		.ghBlogView {
-            border-radius: .25em;
-/*             background: #ccc; */
-			padding: .5em;
-/* 			border: 2pt inset; */
-/* 			border-radius: .25em; */
-		}
-		.ghBlogEntry {
-/*             background: #fff; */
-/*             border: 2pt outset; */
-			padding: .5em;
-			
-		}
-		.ghBlogEntry p {
-            font-family: "Century Schoolbook", "Century", "Times New Roman", Times, serif;
-		}
-		
-		h6 {
-            margin: 0;
-            padding: 0;
-            display: inline;
-            font-size: 75%;
-		}
-		.createdDateTime{
-            font-size: 75%;
-            color: #777;
-		}
-	</style>
-	
     <nav>
         <!-- TODO make this say what view we're using -->
         <h3>BLOG posts&nbsp;</h3>
         {% if session.loglevel %}
-        [ <a href="newpost">&#x270E;new post</a> ]
+            [ <a href="newpost">&#x270E;new post</a> ]
         {% endif %}
     </nav>
 <!--	
@@ -63,20 +33,82 @@
         }
 	</script>
 -->	
-	<div class="ghBlogView">
-
-    {% for entry in ghEntries %}
-        <div class="ghBlogEntry">
-		<h3><a href="?id={{entry.id}}">{{entry.title}}</a></h3>
-		<div><a href="blog?user={{entry.user}}">{{entry.user}}</a>
-		{{entry.email}}<span class="createdDateTime">{{entry.created}}</span></div>
-		<!-- TODO; for users' own posts <h6>[ &#x2710;edit | &#x2718;remove ]</h6> -->
-		<p>{{entry.entry}}</p>
-
+    <style>
+        .paginateNav {
+            text-align: center;
+            width: 100%;
+        }
+    </style>
+	<div class="blogzView">
+    Showing {{ ghEntries.items|length }} 
+    [{{ ghEntries.page * ghEntries.items|length - ghEntries.items|length + 1 }} to {{ ghEntries.page * ghEntries.items|length }}]
+    of {{ghEntries.total}}<br/>
+        <div class="paginateNav">
+            [
+            {% if ghEntries.has_prev  %}
+                <a href="{{url_for('blog', page=ghEntries.prev_num, limit=limit)}}">prev</a>
+            {% else %}
+                prev
+            {% endif %}
+            (
+            {% for page in ghEntries.iter_pages() %}
+                {% if page != ghEntries.page %}
+                    <a href="{{url_for('blog', page=page, limit=limit)}}">{{ page }}</a>
+                {% else %}
+                    {{ page }} 
+                {% endif %}
+            {% endfor %}
+            )
+            {% if ghEntries.has_next %}
+                <a href="{{url_for('blog', page=ghEntries.next_num, limit=limit)}}">next</a>
+            {% else %}
+                next
+            {% endif %}
+            ]
+        </div>
+    {% for entry in ghEntries.items %}
+        <div class="blogzEntry">
+            <div class="blogzEntryTitle">
+                <h3><a href="?id={{entry.id}}">{{entry.title}}</a></h3>
+                {% if entry.user == session.handle %}
+                    <h6>[ &#x2710;edit | <a href="removepost?id={{entry.id}}">&#x2718;remove</a> ]</h6>
+                {% endif %}
+            </div>
+            <div class="blogzEntryAuthor">
+                <a href="blog?user={{entry.user}}">{{entry.user}}</a>
+            </div>
+            <div class="blogzEntryContent">
+                {{entry.entry}}
+            </div>
+            <div class="blogzEntryCreated">{{entry.created}}</div>
 		</div>
     {% else %}
         <p>No entries to show.</p>
     {% endfor %}
-
     </div>
+
+    <div class="paginateNav">
+        [
+        {% if ghEntries.has_prev  %}
+            <a href="{{url_for('blog', page=ghEntries.prev_num, limit=limit)}}">prev</a>
+        {% else %}
+            prev
+        {% endif %}
+        (
+        {% for page in ghEntries.iter_pages() %}
+            {% if page != ghEntries.page %}
+                <a href="{{url_for('blog', page=page, limit=limit)}}">{{ page }}</a>
+            {% else %}
+                {{ page }} 
+            {% endif %}
+        {% endfor %}
+        )
+        {% if ghEntries.has_next %}
+            <a href="{{url_for('blog', page=ghEntries.next_num, limit=limit)}}">next</a>
+        {% else %}
+            next
+        {% endif %}
+        ]
+    </div>
+
 {% endblock %}

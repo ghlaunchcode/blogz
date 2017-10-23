@@ -1,0 +1,53 @@
+{% extends 'boilerplate.html' %}
+{% block content %}
+	<h3>Secret Poker :: </h3>
+	<!--<span>Texas Hold'em Hand Simulation</span>-->
+	<span class="pokerSetPlayers">
+        <form method="GET" action="poker" id="playercountform">
+			Player Count:
+			<select name="playercount" id="playercountselect" onclick="document.getElementById('playercountform').submit()">
+				<option value="1">1</option>
+				<option  value="2">2</option>
+				<option  value="3">3</option>
+				<option  value="4">4</option>
+				<option  value="5">5</option>
+				<option  value="6">6</option>
+				<option  value="7">7</option>
+				<option  value="8">8</option>
+				<option  value="9">9</option>
+				<option  value="10">10</option>
+			</select>
+			<!-- workaround for noscript browsing -->
+			<input type="submit" value="Deal"></input>
+        </form>
+	</span>
+
+	<script>
+        var parts = window.location.search.substr(1).split("&");
+        var $_GET = {};
+        for (var i = 0; i < parts.length; i++) {
+            var temp = parts[i].split("=");
+            $_GET[decodeURIComponent(temp[0])] = decodeURIComponent(temp[1]);
+        }
+
+		var countActual = 1;
+		if( $_GET['playercount'] ) {
+			var countTest = $_GET['playercount'];
+			
+
+				if( countTest > 0 ) {
+					if( countTest < 10 ) {
+						countActual = countTest;
+					} else {
+						countActual = 10;
+					}
+				} else {
+					countActual = 1;
+				}
+
+			document.getElementById( "playercountselect" ).value = countActual;
+        }
+	</script>
+
+    {{ghPokerGame}}
+{% endblock %}
