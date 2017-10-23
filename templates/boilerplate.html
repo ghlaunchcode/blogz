@@ -34,14 +34,18 @@
                                 <a href="blog">&#x269E;posts</a>
                             {% endif %}
                         </nav>
-                        <div>
-                            <h2>{{ghPage_Title}}</h2>
-                            <nav>
-                                &#x21B3;&nbsp;{{ghNav}}
-                            </nav>
-                        </div>
+                        <div class="flexLine2">
+                            <div>
+                                <h2>{{ghPage_Title}}</h2>
+                                <nav>
+                                    &#x21B3;&nbsp;{{ghNav}}
+                                </nav>
+                            </div>
+                            <!--
+                            <div class="slogan">{{ghSlogan}}</div>
+                            -->
+                        </div>                        
                     </div>
-                    <div class="slogan">{{ghSlogan}}</div>
                     <nav class="navUser">
                         <!-- TODO: customize based on user session -->
                         <div>User: {{ghUser_Name}}</div>

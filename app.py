@@ -1,4 +1,4 @@
-""" Provides app, db, and ghDEBUG """
+"""Provides app, db, and ghDEBUG"""
 # app.py
 # Build A Blog
 # 2017, polarysekt

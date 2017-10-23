@@ -1,4 +1,4 @@
-""" Models (Tables) for BLOGz """
+"""Models (Tables) for BLOGz"""
 #models.py
 # BLOGz-specific Models
 #

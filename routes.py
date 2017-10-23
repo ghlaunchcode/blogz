@@ -1,3 +1,4 @@
+"""Provide routes for BLOGz"""
 # routes.py
 # Build A Blog :: routes
 # 2017, polarysekt
@@ -6,6 +7,7 @@ import os
 
 from flask import Flask, request, redirect, render_template, session
 from flask import Markup, url_for, send_from_directory
+from flask_paginate import Pagination, get_page_parameter
 from sqlalchemy.orm import load_only
 
 from app import app, db, valid_session_key
@@ -70,20 +72,15 @@ def index():
 
 # ROUTE: '/blog' :: Blog View Page : open access
 @app.route("/blog")
+#@app.route("/blog/<int:page>")
 def blog():
     strNav = strNav_base + " :: " + '<a href="/blog">' + ghPAGE_BLOG + '</a>'
 
     # DETERMINE view TYPE
     strUserName = request.args.get('user')
-    strViewId = request.args.get('id')
-
-    if strViewId:
-        try:
-            intViewId = int(strViewId)
-        except:
-            intViewId = 0
-    else:
-        intViewId = 0
+    intViewId = request.args.get('id', type=int, default=0)
+    intLimit = request.args.get('limit', type=int, default=5)
+    page = request.args.get(get_page_parameter(), type=int, default=1)
 
     if strUserName:
         #Get owner_id
@@ -96,23 +93,24 @@ def blog():
         strNav += ' :: <a href="?user=' + strUserName + '">' + strUserName + "</a>"
         if intViewId > 0:
             strNav += ' & <a href="?id=' + strViewId + '">id=' + strViewId + '</a>'
-            view_entries = BlogzEntry.query.filter_by(owner_id=intOwnerId, id=intViewId)
+            view_entries = BlogzEntry.query.filter_by(owner_id=intOwnerId, id=intViewId).paginate(page,intLimit)
         else:
-            view_entries = BlogzEntry.query.filter_by(owner_id=intOwnerId)
+            view_entries = BlogzEntry.query.filter_by(owner_id=intOwnerId).paginate(page,intLimit)
     else:
         if intViewId > 0:
             strNav += ' :: <a href="?id=' + strViewId + '">id=' + strViewId + '</a>'
-            view_entries = BlogzEntry.query.filter_by(id=intViewId)
+            view_entries = BlogzEntry.query.filter_by(id=intViewId).paginate(page,intLimit)
         else:
             strNav += ' :: <a href="blog">all</a>'
-            view_entries = BlogzEntry.query.all()
+            view_entries = BlogzEntry.query.paginate(page,intLimit)
+
 
     #convert the dates to local server time
     #TODO get users local time?
-    for i in view_entries:
+    for i in view_entries.items:
         i.created = gh_getLocalTime(i.created)
 
-    return render_template('blog.html', ghPage_Title=ghPAGE_BLOG, ghSlogan=Markup(getSlogan()), ghUser_Name=get_current_user(), ghNav=Markup(strNav), ghErratae=Markup(get_fetch_info()), ghEntries=view_entries)
+    return render_template('blog.html', limit=intLimit,ghPage_Title=ghPAGE_BLOG, ghSlogan=Markup(getSlogan()), ghUser_Name=get_current_user(), ghNav=Markup(strNav), ghErratae=Markup(get_fetch_info()), ghEntries=view_entries)
 
 # ROUTE '/login' :: User Login Page : Redundancy Blacklist
 @app.route("/login", methods=['POST', 'GET'])

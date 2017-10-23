@@ -1,4 +1,4 @@
-""" Provides helpers functionality for BLOGz"""
+"""Provides helpers functionality for BLOGz"""
 # helpers.py
 # 2017, Geoffrey Hadler
 
