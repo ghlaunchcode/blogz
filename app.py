@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 
 ## ENABLE/DISABLE Debugging ###
-ghDEBUG = True
+ghDEBUG = False
 isHeroku = True
 ###############################
 
