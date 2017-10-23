@@ -2,5 +2,6 @@ tzlocal
 pytz
 flask
 flask_sqlalchemy
+flask_paginate
 flask-bcrypt
 pymysql
