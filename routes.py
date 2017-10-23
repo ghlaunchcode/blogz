@@ -82,20 +82,6 @@ def blog():
     intLimit = request.args.get('limit', type=int, default=5)
     page = request.args.get(get_page_parameter(), type=int, default=1)
 
-#    if strLimit:
-#        try:
-#            intLimit = int(strLimit)
-#        except:
-#            intLimit = 0
-
-#    if strViewId:
-#        try:
-#            intViewId = int(strViewId)
-##        except:
-#            intViewId = 0
-#    else:
-#        intViewId = 0
-
     if strUserName:
         #Get owner_id
         #TODO load_only?
@@ -119,17 +105,10 @@ def blog():
             view_entries = BlogzEntry.query.paginate(page,intLimit)
 
 
-    #view_entries.paginate(page, 5)
-
-
     #convert the dates to local server time
     #TODO get users local time?
     for i in view_entries.items:
         i.created = gh_getLocalTime(i.created)
-
-#    search = True
-#    pagination = Pagination(page=page, total=view_entries.count, search=search, record_name='view_entries')
-    #view_entries.paginate(page,5)
 
     return render_template('blog.html', limit=intLimit,ghPage_Title=ghPAGE_BLOG, ghSlogan=Markup(getSlogan()), ghUser_Name=get_current_user(), ghNav=Markup(strNav), ghErratae=Markup(get_fetch_info()), ghEntries=view_entries)
 

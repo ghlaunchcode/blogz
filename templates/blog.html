@@ -40,23 +40,27 @@
         }
     </style>
 	<div class="blogzView">
-    Showing {{limit}} of {{ghEntries.total}}<br/>
+    Showing {{ ghEntries.items|length }} 
+    [{{ ghEntries.page * ghEntries.items|length - ghEntries.items|length + 1 }} to {{ ghEntries.page * ghEntries.items|length }}]
+    of {{ghEntries.total}}<br/>
         <div class="paginateNav">
             [
             {% if ghEntries.has_prev  %}
-                <a href="{{url_for('blog', page=ghEntries.prev_num)}}">prev</a>
+                <a href="{{url_for('blog', page=ghEntries.prev_num, limit=limit)}}">prev</a>
             {% else %}
                 prev
             {% endif %}
+            (
             {% for page in ghEntries.iter_pages() %}
                 {% if page != ghEntries.page %}
-                    <a href="{{url_for('blog', page=page)}}">{{ page }}</a>
+                    <a href="{{url_for('blog', page=page, limit=limit)}}">{{ page }}</a>
                 {% else %}
                     {{ page }} 
                 {% endif %}
             {% endfor %}
+            )
             {% if ghEntries.has_next %}
-                <a href="{{url_for('blog', page=ghEntries.next_num)}}">next</a>
+                <a href="{{url_for('blog', page=ghEntries.next_num, limit=limit)}}">next</a>
             {% else %}
                 next
             {% endif %}
@@ -83,10 +87,28 @@
     {% endfor %}
     </div>
 
-    {% if ghEntries.has_prev  %}
-        <a href="{{url_for('blog', page=ghEntries.prev_num)}}">prev</a>
-    {% endif %}
-    {% if ghEntries.has_next %}
-        <a href="{{url_for('blog', page=ghEntries.next_num)}}">next</a>
-    {% endif %}
+    <div class="paginateNav">
+        [
+        {% if ghEntries.has_prev  %}
+            <a href="{{url_for('blog', page=ghEntries.prev_num, limit=limit)}}">prev</a>
+        {% else %}
+            prev
+        {% endif %}
+        (
+        {% for page in ghEntries.iter_pages() %}
+            {% if page != ghEntries.page %}
+                <a href="{{url_for('blog', page=page, limit=limit)}}">{{ page }}</a>
+            {% else %}
+                {{ page }} 
+            {% endif %}
+        {% endfor %}
+        )
+        {% if ghEntries.has_next %}
+            <a href="{{url_for('blog', page=ghEntries.next_num, limit=limit)}}">next</a>
+        {% else %}
+            next
+        {% endif %}
+        ]
+    </div>
+
 {% endblock %}
