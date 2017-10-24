@@ -599,7 +599,7 @@ def get_card_full_ch(val):
 
 def get_card_value_ht(val):
     if val < 52 and val >= 0:
-        return STRLST_POKER_VALUE_CHR[get_card_value_i(val)]
+        return STRLST_POKER_VALUE_CH2[get_card_value_i(val)]
     else:
         return None
 
@@ -631,43 +631,46 @@ def get_demo(numplayers):
             
             holdem = Holdem(numplayers)
             holdem.deal_all()
-        
+            strStringReturn += '<div class="playerheading">Players:</div>'
             strStringReturn += '<div class="playergame">'
             for p in range(holdem.numplayers):
-                strStringReturn += '<div class="pokerplayer">'
-                strStringReturn += '<span class="playerlabel">' + "P" + str(p) + "</span>" + get_hand_html( holdem.get_hole(p) )
-                strStringReturn += '</div>'
+                strStringReturn += '  <div class="pokerplayer">'
+                strStringReturn += '    <span class="playerlabel">' + "P" + str(p) + "</span>" + get_hand_html( holdem.get_hole(p) )
+                strStringReturn += '    <div class="playerhand">'
+                strStringReturn += STRLST_POKER_HAND[get_best_hand( holdem.get_hole(p) + holdem.get_community())]
+                strStringReturn += '    </div>'
+                strStringReturn += '  </div>'
             strStringReturn += '</div>'
 
             strStringReturn += '<div class="communitylabel">Community:</div>'
-            strStringReturn += '<div class="pokercommunity">' + get_hand_html( holdem.get_community() )
-            strStringReturn += '</div>'
+            strStringReturn += '  <div class="pokercommunity">' + get_hand_html( holdem.get_community() )
+            strStringReturn += '  </div>'
 
-            strStringReturn += '<div class="infoz">'
+            strStringReturn += '  <div class="infoz">'
             
             # game log
-            strStringReturn += '<div>'
-            strStringReturn += '<div class="talabel">Log</div>'
-            strStringReturn += '<textarea id="textLog">'
+            strStringReturn += '    <div>'
+            strStringReturn += '      <div class="talabel">Log</div>'
+            strStringReturn += '        <textarea id="textLog">'
             strStringReturn += holdem.get_log_str()
-            strStringReturn += '</textarea>'
-            strStringReturn += '</div>'
+            strStringReturn += '        </textarea>'
+            strStringReturn += '      </div>'
 
             # TEXT SUMMARY
-            strStringReturn += "<div>"
-            strStringReturn += '<div class="talabel">Summary</div>'
-            strStringReturn += '<textarea id="textSummary">'
+            strStringReturn += "      <div>"
+            strStringReturn += '        <div class="talabel">Summary</div>'
+            strStringReturn += '        <textarea id="textSummary">'
             for p in range(holdem.numplayers):
                 strStringReturn += "Player " + str(p) + ": " + get_hand_ch(holdem.get_hole(p) ) + "\n"
 
             strStringReturn += "Community: " + get_hand_ch(holdem.get_community()) + "\n"
-            strStringReturn += '</textarea>'
-            strStringReturn += "</div>"
+            strStringReturn += '        </textarea>'
+            strStringReturn += "      </div>"
 
             # Hand Breakdown
-            strStringReturn += "<div>"
-            strStringReturn += '<div class="talabel">Hand Value</div>'
-            strStringReturn += '<textarea id="textTODO">'
+            strStringReturn += "    <div>"
+            strStringReturn += '      <div class="talabel">Hand Value</div>'
+            strStringReturn += '      <textarea id="textTODO">'
             #print( strStringReturn )
             #strStringReturn = ""
             # get best hands:
@@ -675,8 +678,8 @@ def get_demo(numplayers):
                 strStringReturn += "Player " + str(p) + ": " + STRLST_POKER_HAND[get_best_hand( holdem.get_hole(p) + holdem.get_community())]+ "\n"
             
             
-            strStringReturn += '</textarea>'
-            strStringReturn += "</div>"
+            strStringReturn += '    </textarea>'
+            strStringReturn += "  </div>"
 
             strStringReturn += "</div>"
 

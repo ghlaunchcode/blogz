@@ -276,15 +276,21 @@ textarea {
 	flex-flow:wrap;
 }
 
-.pokerplayer, .pokercommunity {
-	margin: .5em;
+.infoz {
+	justify-content: space-between;
 }
 
+.pokerplayer, .pokercommunity {
+	margin: .25em;
+}
 
-.playerlabel, .communitylabel, .talabel {
+.playerheading, .communitylabel, .talabel {
 	color: #009;
 	font-weight: bold;
-	/*font-size: 125%;*/
+}
+
+.playerlabel {
+	text-align: center;
 }
 
 .pokercard_black, .pokercard_red {
@@ -309,6 +315,12 @@ textarea {
 
 .pokercard_red {
 	color: #f00;
+}
+
+.playerhand {
+	font-family: Arial, Helvetica, sans;
+	font-size: 75%;
+	text-align: center;
 }
 
 textarea {
